@@ -1,0 +1,16 @@
+{
+  "name": "smallcategories-site",
+  "version": "1.0.0",
+  "description": "Runs smallcats.info",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ben Spitz",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.26.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  }
+}
