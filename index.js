@@ -1,12 +1,14 @@
 import 'dotenv/config'
 
+import path from 'path'
+
 import express from 'express'
 const app = express()
 const port = process.env.PORT
 
 const supabaseUrl = 'https://znxyuwheorjbdymlnrxe.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
-import createClient from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: false,
@@ -14,8 +16,8 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 })
 
-import Eta from "eta"
-const eta = new Eta({ views: path.join(__dirname, "templates") })
+import { Eta } from "eta"
+const eta = new Eta({ views: "templates" })
 
 // Home page shows number of categories in database
 app.get('/', async (req, res) => {
@@ -31,7 +33,7 @@ app.get('/category/:id', async (req, res) => {
     .select('*', { count: 'exact' })
     .eq('id', req.params.id)
   if (count == 1) {
-    res.send(eta.render("./view-category", { name: data.friendly_name }))
+    res.send(eta.render("./view-category", { name: data[0].friendly_name }))
   }
   else {
     res.send("There is not a unique category with this id!")
