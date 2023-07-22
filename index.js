@@ -20,6 +20,11 @@ app.get('/', async (req, res) => {
   res.send(count + " categories in database!")
 })
 
+// Return 200 OK on /health
+app.get('/health', async (req, res) => {
+  res.sendStatus(200)
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
