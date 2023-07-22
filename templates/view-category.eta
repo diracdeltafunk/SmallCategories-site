@@ -19,7 +19,7 @@
 </tr>
 <tr>
 <td>table</td>
-<td><%= it.table %></td>
+<td><%~ it.table %></td>
 </tr>
 <tr>
 <td>description</td>
