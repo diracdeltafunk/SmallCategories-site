@@ -1,1 +1,26 @@
-<%= it.name %>
+<table>
+<tr>
+<td>id</td>
+<td><%= it.id %></td>
+</tr>
+<tr>
+<td>objects</td>
+<td><%= it.objects %></td>
+</tr>
+<tr>
+<td>index</td>
+<td><%= it.index %></td>
+</tr>
+<tr>
+<td>friendly_name</td>
+<td><%= it.friendly_name %></td>
+</tr>
+<tr>
+<td>table</td>
+<td><%= it.table %></td>
+</tr>
+<tr>
+<td>description</td>
+<td><%= it.description %></td>
+</tr>
+</table>

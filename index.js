@@ -30,10 +30,10 @@ app.get('/', async (req, res) => {
 app.get('/category/:id', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')
-    .select('*', { count: 'exact' })
+    .select('*')
     .eq('id', req.params.id)
-  if (count == 1) {
-    res.send(eta.render("./view-category", { name: data[0].friendly_name }))
+  if (data.length == 1) {
+    res.send(eta.render("./view-category", data[0]))
   }
   else {
     res.send("There is not a unique category with this id!")
