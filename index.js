@@ -17,7 +17,10 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 })
 
 import { Eta } from "eta"
-const eta = new Eta({ views: "templates" })
+const eta = new Eta({ views: "templates", cache: true })
+
+app.engine("eta", eta.render)
+app.set("view engine", "eta")
 
 // Home page shows number of categories in database
 app.get('/', async (req, res) => {
@@ -33,7 +36,7 @@ app.get('/category/:id', async (req, res) => {
     .select('*')
     .eq('id', req.params.id)
   if (data.length == 1) {
-    res.send(eta.render("./view-category", data[0]))
+    res.render("./view-category", data[0])
   }
   else {
     res.send("There is not a unique category with this id!")

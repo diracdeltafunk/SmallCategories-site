@@ -14,15 +14,15 @@
 <td>SmallCats ID</td>
 <td>(<%= it.morphisms %>,<%= it.objects %>,<%= it.index %>)</td>
 <tr>
-<td>friendly_name</td>
+<td>Friendly Name</td>
 <td><%= it.friendly_name %></td>
 </tr>
 <tr>
-<td>table</td>
-<td><%~ it.table %></td>
+<td>Multiplication Table</td>
+<td><%= it.table %></td>
 </tr>
 <tr>
-<td>description</td>
+<td>Description</td>
 <td><%= it.description %></td>
 </tr>
 </table>
