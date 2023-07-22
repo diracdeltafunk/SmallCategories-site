@@ -1,16 +1,18 @@
 <table>
 <tr>
-<td>id</td>
-<td><%= it.id %></td>
-</tr>
+<td>Morphisms</td>
+<td><%= it.morphisms %></td>
 <tr>
-<td>objects</td>
+<td>Objects</td>
 <td><%= it.objects %></td>
 </tr>
 <tr>
-<td>index</td>
+<td>Index</td>
 <td><%= it.index %></td>
 </tr>
+<tr>
+<td>SmallCats ID</td>
+<td>(<%= it.morphisms %>,<%= it.objects %>,<%= it.index %>)</td>
 <tr>
 <td>friendly_name</td>
 <td><%= it.friendly_name %></td>
