@@ -22,13 +22,6 @@ const eta = new Eta({ views: "views", cache: process.env.NODE_ENV == 'production
 
 app.use(express.static('static'))
 
-app.get('/', async (req, res) => {
-  let { data, error, status, count } = await supabase
-    .from('Categories')
-    .select('*', { count: 'exact', head: true })
-  res.send(eta.render("./index", { count: count }))
-})
-
 app.get('/category/:id', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')
@@ -40,6 +33,13 @@ app.get('/category/:id', async (req, res) => {
   else {
     res.send("There is not a unique category with this id!")
   }
+})
+
+app.get('/count', async (req, res) => {
+  let { data, error, status, count } = await supabase
+    .from('Categories')
+    .select('*', { count: 'exact', head: true })
+  res.send(count.toString())
 })
 
 // Return 200 OK on /health

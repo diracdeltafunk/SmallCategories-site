@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmallCats</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/htmx.org@1.9.3"
+        integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <section class="hero is-fullheight">
+        <div class="hero-head">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <a class="navbar-item" href="/">
+                        <span class="has-text-weight-semibold">SmallCategories</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    😺 Welcome to SmallCategories!
+                </h1>
+                <p>
+                    The SmallCategories Project aims to build a useful, useable database of small finite categories.
+                    There
+                    are currently <span hx-get="/count" hx-trigger="load"><span class="icon"><i
+                                class="fa-solid fa-ellipsis fa-fade"></i></span></span> categories in the
+                    database!
+                </p>
+                <br>
+                <p class="buttons">
+                    <a class="button is-link is-light is-outlined">
+                        <span class="icon">
+                            <i class="fa-solid fa-list"></i>
+                        </span>
+                        <span>Browse</span>
+                    </a>
+                    <a class="button is-primary is-light is-outlined">
+                        <span class="icon">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <span>Query</span>
+                    </a>
+                    <a class="button is-info is-light is-outlined"
+                        href="https://github.com/diracdeltafunk/SmallCategories">
+                        <span class="icon">
+                            <i class="fa-brands fa-github"></i>
+                        </span>
+                        <span>Source</span>
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div class="hero-foot">
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>
+                        &copy;2023 <a href="https://jgthms.com">Ben Spitz</a>
+                    </p>
+                </div>
+            </footer>
+        </div>
+    </section>
+</body>
+
+</html>
