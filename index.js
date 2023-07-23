@@ -22,6 +22,10 @@ const eta = new Eta({ views: "views", cache: process.env.NODE_ENV == 'production
 
 app.use(express.static('static'))
 
+app.get('/', (req, res) => {
+  res.send(eta.render("./index"))
+})
+
 app.get('/category/:id', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')
