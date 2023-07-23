@@ -16,15 +16,17 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 })
 
+// Cache views iff in production
 import { Eta } from "eta"
-const eta = new Eta({ views: "templates", cache: true })
+const eta = new Eta({ views: "views", cache: process.env.NODE_ENV == 'production' })
 
-// Home page shows number of categories in database
+app.use(express.static('static'))
+
 app.get('/', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')
     .select('*', { count: 'exact', head: true })
-  res.send(count + " categories in database!")
+  res.send(eta.render("./index", { count: count }))
 })
 
 app.get('/category/:id', async (req, res) => {
@@ -46,5 +48,5 @@ app.get('/health', async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`App listening on port ${port}`)
 })

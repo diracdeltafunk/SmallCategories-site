@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmallCats</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                😺 The SmallCategories Project
+            </h1>
+            <p>
+                The SmallCategories Project aims to build a useful, useable database of small finite categories. There are currently <%= it.count %> categories in the database!
+            </p>
+            <br>
+            <p>
+                <a class="button is-primary" href="https://github.com/diracdeltafunk/SmallCategories"><span class="icon-text"><span class="icon"><i class="fa-brands fa-github"></i></span> <span>Database Source</span></a>
+            </p>
+        </div>
+    </section>
+</body>
+
+</html>
