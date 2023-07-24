@@ -180,6 +180,16 @@ app.get('/count_props', async (req, res) => {
   res.send(count.toString())
 })
 
+app.get('/count_rels', async (req, res) => {
+  let { data, error, status, count } = await supabase
+    .from('KnowledgeBase')
+    .select('*', { count: 'exact', head: true })
+  if (error) {
+    console.error(error)
+  }
+  res.send(count.toString())
+})
+
 // Return 200 OK on /health
 app.get('/health', async (req, res) => {
   res.sendStatus(200)
