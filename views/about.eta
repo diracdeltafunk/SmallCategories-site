@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-info">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-question"></i>
+                    </span>
+                    About
+                </h1>
+            </div>
+        </div>
+        <section class="section">
+            <div class="block">
+                The SmallCategories Project aims to produce, maintain, and make available a database of small finite
+                categories which is useful and useable.
+            </div>
+            <div class="block">
+                The database itself is produced by running the <a href="https://github.com/minion/minion">Minion<span
+                        class="icon"><i class="fa-brands fa-github"></i></span></a> constraint solver to enumerate all
+                category structures on a given
+                finite set, then eliminating isomorphic copies by brute force. You can find the source code for all of
+                that <a href="https://github.com/diracdeltafunk/SmallCategories">here<span class="icon"><i
+                            class="fa-brands fa-github"></i></span></a>.
+            </div>
+            <div class="block">
+                You can find the source code for this website <a
+                    href="https://github.com/diracdeltafunk/SmallCategories-site">here<span class="icon"><i
+                            class="fa-brands fa-github"></i></span></a>.
+            </div>
+            <div class="block">
+                SmallCategories is (so far) a personal project by myself, <a href="https://benspitz.com">Ben
+                    Spitz<span class="icon"><i class="fa-solid fa-link"></i></span></a>. But if you're
+                interested in contributing, please get in touch!
+            </div>
+        </section>
+</body>
+
+</html>

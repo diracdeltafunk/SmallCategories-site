@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-success">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-chart-simple"></i>
+                    </span>
+                    Statistics
+                </h1>
+            </div>
+        </div>
+        <section class="section">
+            <div class="level">
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Categories</p>
+                        <p class="title" hx-get="/count_cats" hx-trigger="load"><span class="icon"><i
+                                    class="fa-solid fa-ellipsis fa-fade"></i></span></p>
+                    </div>
+
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Propositions</p>
+                        <p class="title" hx-get="/count_props" hx-trigger="load"><span class="icon"><i
+                                    class="fa-solid fa-ellipsis fa-fade"></i></span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+</body>
+
+</html>

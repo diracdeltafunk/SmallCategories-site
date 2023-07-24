@@ -124,6 +124,18 @@ app.get('/submit_button', (req, res) => {
   res.send('<input type="submit" value="Search" class="button is-link"></input>')
 })
 
+app.get('/query', (req, res) => {
+  res.send(eta.render("./query"))
+})
+
+app.get('/stats', (req, res) => {
+  res.send(eta.render("./stats"))
+})
+
+app.get('/about', (req, res) => {
+  res.send(eta.render("./about"))
+})
+
 app.get('/category/:id', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')
@@ -144,9 +156,19 @@ app.get('/category_modal/:id', async (req, res) => {
   res.send("test")
 })
 
-app.get('/count', async (req, res) => {
+app.get('/count_cats', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')
+    .select('*', { count: 'exact', head: true })
+  if (error) {
+    console.error(error)
+  }
+  res.send(count.toString())
+})
+
+app.get('/count_props', async (req, res) => {
+  let { data, error, status, count } = await supabase
+    .from('Propositions')
     .select('*', { count: 'exact', head: true })
   if (error) {
     console.error(error)
@@ -159,6 +181,7 @@ app.get('/health', async (req, res) => {
   res.sendStatus(200)
 })
 
+// If nothing caught, return 404
 app.use((req, res) => {
   res.status(404)
   if (req.accepts('html')) {

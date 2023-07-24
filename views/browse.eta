@@ -7,7 +7,7 @@
 
 <body>
     <%~ include("./navbar") %>
-        <div class="hero is-info">
+        <div class="hero is-link">
             <div class="hero-body">
                 <h1 class="title">
                     <span class="icon">

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-primary">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    Query
+                </h1>
+            </div>
+        </div>
+</body>
+
+</html>

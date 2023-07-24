@@ -9,9 +9,9 @@
     <%~ include("./navbar") %>
         <div class="hero is-warning is-large">
             <div class="hero-body">
-                <p class="title">
+                <h1 class="title">
                     [404] Not Found 😿
-                </p>
+                </h1>
                 <p>
                     The document you requested:
                     <br><br>
