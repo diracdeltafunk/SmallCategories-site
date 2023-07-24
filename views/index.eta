@@ -20,7 +20,7 @@
                     There
                     are currently <span hx-get="/count_cats" hx-trigger="load"><span class="icon"><i
                                 class="fa-solid fa-ellipsis fa-fade"></i></span></span> categories in the
-                    database!
+                    database, including all categories with ≤7 morphisms!
                 </p>
                 <br>
                 <p class="buttons">
