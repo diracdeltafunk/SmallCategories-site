@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-warning is-large">
+            <div class="hero-body">
+                <p class="title">
+                    [404] Not Found 😿
+                </p>
+                <p>
+                    The document you requested:
+                    <br><br>
+                <pre><%= it.url %></pre>
+                <br>
+                could not be found. If you think this is a bug, you can <a
+                    href="https://github.com/diracdeltafunk/SmallCategories-site/issues">report
+                    it!<span class="icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+                </p>
+            </div>
+        </div>
+</body>
+
+</html>

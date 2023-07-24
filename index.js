@@ -159,6 +159,19 @@ app.get('/health', async (req, res) => {
   res.sendStatus(200)
 })
 
+app.use((req, res) => {
+  res.status(404)
+  if (req.accepts('html')) {
+    res.send(eta.render("./404", { url: req.url }))
+    return
+  }
+  if (req.accepts('json')) {
+    res.json({ error: 'Not found' })
+    return
+  }
+  res.type('txt').send('Not found')
+})
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`)
 })
