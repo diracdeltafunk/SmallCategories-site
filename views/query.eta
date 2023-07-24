@@ -17,6 +17,47 @@
                 </h1>
             </div>
         </div>
+        <section class="section">
+            <div class="columns">
+                <div class="column">
+                    <form hx-get="/query_listing" hx-target="#results" hx-indicator="#results">
+                        <div class="field">
+                            <label class="label">Number of Morphisms</label>
+                            <div class="control">
+                                <input class="input" type="text" name="morphisms" placeholder="e.g. 4">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Number of Objects</label>
+                            <div class="control">
+                                <input class="input" type="text" name="objects" placeholder="e.g. 3">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Satisfying</label>
+                            <div class="control">
+                                <input class="input" type="text" name="satisfying"
+                                    placeholder="e.g. is_discrete,has_initial_object">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Not Satisfying</label>
+                            <div class="control">
+                                <input class="input" type="text" name="not_satisfying"
+                                    placeholder="e.g. has_terminal_object">
+                            </div>
+                        </div>
+                        <input type="submit" value="Submit" class="button is-link"></input>
+                    </form>
+                </div>
+                <div class="column" id="results">
+                    <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+
+        </section>
 </body>
 
 </html>

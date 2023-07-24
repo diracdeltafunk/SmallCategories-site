@@ -128,6 +128,58 @@ app.get('/query', (req, res) => {
   res.send(eta.render("./query"))
 })
 
+app.get('/query_listing', async (req, res) => {
+  const morphisms = req.query.morphisms != '' ? parseInt(req.query.morphisms) : null
+  const objects = req.query.objects != '' ? parseInt(req.query.objects) : null
+  const sat = req.query.satisfying
+  const nonsat = req.query.not_satisfying
+  const { data: true_prop_ids } = await supabase
+    .from('Propositions')
+    .select('id')
+    .in('name', sat.split(','))
+  const { data: false_prop_ids } = await supabase
+    .from('Propositions')
+    .select('id')
+    .in('name', nonsat.split(','))
+  const cols = ['id', 'index', 'friendly_name', ...true_prop_ids.map((_, i) => `truekb${i}:KnowledgeBase!inner(proposition,value)`), ...false_prop_ids.map((_, i) => `falsekb${i}:KnowledgeBase!inner(proposition,value)`)]
+  const { data, count } = await supabase
+    .from('Categories')
+    .select(cols.join(','), { count: 'exact' })
+    .or(morphisms == null ? 'morphisms.gte.0' : `morphisms.eq.${morphisms}`)
+    .or(objects == null ? 'objects.gte.0' : `objects.eq.${objects}`)
+    .match(Object.fromEntries(true_prop_ids.flatMap((p, i) => [[`truekb${i}.proposition`, p.id], [`truekb${i}.value`, true]])))
+    .match(Object.fromEntries(false_prop_ids.flatMap((p, i) => [[`falsekb${i}.proposition`, p.id], [`falsekb${i}.value`, false]])))
+    .range(0, 9)
+  console.log(data)
+  let response = `
+  <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+  <table class="table is-fullwidth">
+  <thead>
+    <tr>
+      <th>Index</th>
+      <th>Name</th>
+      <th>ID <i class="fa-solid fa-link"></i></a></th>
+    </tr>
+  </thead>
+  <tbody>
+  `
+  for (const i of data) {
+    response += `
+    <tr>
+      <th>${i.index}</th>
+      <td>${i.friendly_name == null ? '<span class="has-text-grey">N/A</span>' : i.friendly_name}</td>
+      <td><a href="/category/${i.id}">${i.id.slice(0, 7)}...</a></td>
+    </tr>`
+  }
+  response += "</tbody></table>"
+  if (count > 10) {
+    response += `
+    <p>Showing 10 of ${count} results.</p>
+    `
+  }
+  res.send(response)
+})
+
 app.get('/stats', (req, res) => {
   res.send(eta.render("./stats"))
 })
@@ -154,10 +206,6 @@ app.get('/category/:id', async (req, res) => {
   else {
     res.send("There is not a unique category with this id!")
   }
-})
-
-app.get('/category_modal/:id', async (req, res) => {
-  res.send("test")
 })
 
 app.get('/count_cats', async (req, res) => {

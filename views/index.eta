@@ -30,7 +30,7 @@
                         </span>
                         <span>Browse</span>
                     </a>
-                    <a class="button is-primary is-light is-outlined">
+                    <a class="button is-primary is-light is-outlined" href="/query">
                         <span class="icon">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
