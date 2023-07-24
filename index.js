@@ -136,6 +136,10 @@ app.get('/about', (req, res) => {
   res.send(eta.render("./about"))
 })
 
+app.get('/support', (req, res) => {
+  res.send(eta.render("./support"))
+})
+
 app.get('/category/:id', async (req, res) => {
   let { data, error, status, count } = await supabase
     .from('Categories')

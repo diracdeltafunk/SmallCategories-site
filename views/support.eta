@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-dark">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-mug-saucer"></i>
+                    </span>
+                    Support
+                </h1>
+            </div>
+        </div>
+        <section class="section">
+            <div class="content">
+                <p>
+                    If you find this project useful, please consider supporting SmallCategories. Your
+                    donation will help:
+                </p>
+                <h2>Keep the Site Running</h2>
+                <p>
+                    Currently, this website runs on render.com's free tier. As a result, the service is a bit slow
+                    (especially after a long period of inactivity), and potentially unreliable. By donating to
+                    SmallCategories, you can help fund a better hosting solution.
+                </p>
+                <h2>Improve the Database</h2>
+                <p>
+                    Extending the range of the SmallCategories database is extremely computationally intensive. Some of
+                    the larger computations have been run on rented cloud computing resources, which I've paid for out
+                    of pocket. However, I can't afford to do much more of this. By donating to SmallCategories, you can
+                    help fund more of these computations.
+                </p>
+                <hr>
+                You can donate via the Ko-fi button below; or please <a href="https://benspitz.com">contact
+                    me</a> if you'd like to support the project a
+                different way.
+            </div>
+            <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+            <script
+                type='text/javascript'>kofiwidget2.init('Donate on Ko-fi', '#29abe0', 'B0B3DOCLE'); kofiwidget2.draw();</script>
+        </section>
+</body>
+
+</html>
