@@ -150,7 +150,6 @@ app.get('/query_listing', async (req, res) => {
     .match(Object.fromEntries(true_prop_ids.flatMap((p, i) => [[`truekb${i}.proposition`, p.id], [`truekb${i}.value`, true]])))
     .match(Object.fromEntries(false_prop_ids.flatMap((p, i) => [[`falsekb${i}.proposition`, p.id], [`falsekb${i}.value`, false]])))
     .range(0, 9)
-  console.log(data)
   let response = `
   <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
   <table class="table is-fullwidth">
