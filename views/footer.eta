@@ -1,7 +1,13 @@
-<footer class="footer">
+<footer class="footer mt-auto">
     <div class="content has-text-centered">
         <p>
             By <a href="https://benspitz.com">Ben Spitz</a>
+            <br>
+            <a href="https://github.com/diracdeltafunk/SmallCategories-site"><span class="icon"><i
+                        class="fa-brands fa-github"></i></span> Source</a>
+            <br>
+            <a href="https://ko-fi.com/diracdeltafunk">Support <span class="icon"><i
+                        class="fa-solid fa-mug-saucer"></i></span></a>
         </p>
     </div>
 </footer>

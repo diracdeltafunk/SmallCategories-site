@@ -24,7 +24,7 @@
                 </p>
                 <br>
                 <p class="buttons">
-                    <a class="button is-link is-light is-outlined">
+                    <a class="button is-link is-light is-outlined" href="/browse">
                         <span class="icon">
                             <i class="fa-solid fa-list"></i>
                         </span>
@@ -41,7 +41,7 @@
                         <span class="icon">
                             <i class="fa-brands fa-github"></i>
                         </span>
-                        <span>Source</span>
+                        <span>Database Info</span>
                     </a>
                 </p>
             </div>

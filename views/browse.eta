@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-info">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-list"></i>
+                    </span>
+                    Browse
+                </h1>
+            </div>
+        </div>
+        <section class="section">
+            <div class="columns">
+                <div class="column is-narrow notification is-info is-light">
+                    <form hx-get="/category_listing" hx-target="#results" hx-disinherit="hx-target">
+                        <div class="field">
+                            <label class="label">Morphisms</label>
+                            <div class="control" hx-get="/morphisms_nav_list" hx-trigger="load">
+                                <span class="icon"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Objects</label>
+                            <div class="control" id="objects-nav">
+                                <p class="has-text-grey">Select a number of morphisms</p>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control" id="submit">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="column" id="results">
+                </div>
+            </div>
+        </section>
+</body>
+
+</html>
