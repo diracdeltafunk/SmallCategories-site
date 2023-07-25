@@ -18,9 +18,11 @@
             </div>
         </div>
         <section class="section">
+            <p>For now, unfortunately, you'll need to know the names of each proposition you want to reference. This
+                will be improved in a future update!</p>
             <div class="columns">
                 <div class="column">
-                    <form hx-get="/query_listing" hx-target="#results" hx-indicator="#results">
+                    <form hx-get="/query_listing" hx-target="#results" hx-indicator="#results" autocomplete="off">
                         <div class="field">
                             <label class="label">Number of Morphisms</label>
                             <div class="control">

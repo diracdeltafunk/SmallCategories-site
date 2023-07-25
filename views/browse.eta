@@ -20,7 +20,7 @@
         <section class="section">
             <div class="columns">
                 <div class="column is-narrow notification is-info is-light">
-                    <form hx-get="/category_listing" hx-target="#results" hx-disinherit="hx-target">
+                    <form hx-get="/category_listing" hx-target="#results" hx-disinherit="hx-target" autocomplete="off">
                         <div class="field">
                             <label class="label">Morphisms</label>
                             <div class="control" hx-get="/morphisms_nav_list" hx-trigger="load">
