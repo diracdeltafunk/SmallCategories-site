@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+        <div class="hero is-link">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-toggle-on"></i>
+                    </span>
+                    Propositions
+                </h1>
+            </div>
+        </div>
+        <section class="section">
+            <div id="results" hx-get="/prop_listing" hx-trigger="load">
+                <span class="icon"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+            </div>
+        </section>
+</body>
+
+</html>

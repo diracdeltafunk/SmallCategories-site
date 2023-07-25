@@ -37,6 +37,9 @@
             <a class="navbar-item" href="/browse">
                 Browse
             </a>
+            <a class="navbar-item" href="/props">
+                Propositions
+            </a>
             <a class="navbar-item" href="/query">
                 Query
             </a>

@@ -104,7 +104,7 @@ app.get('/category_listing', async (req, res) => {
     <tr>
       <th>Index</th>
       <th>Name</th>
-      <th>ID <i class="fa-solid fa-link"></i></a></th>
+      <th>ID <i class="fa-solid fa-link"></i></th>
     </tr>
   </thead>
   <tbody>`
@@ -119,6 +119,59 @@ app.get('/category_listing', async (req, res) => {
   response += "</tbody></table>"
   res.send(response)
 })
+
+app.get('/props', (req, res) => {
+  res.send(eta.render("./props"))
+})
+
+app.get('/prop_listing', async (req, res) => {
+  const page_size = 10
+  const start_index = req.query.from ? parseInt(req.query.from) : 0
+  const { data, error, status, count } = await supabase
+    .from('Propositions')
+    .select('*', { count: 'exact' })
+    .range(start_index, start_index + page_size - 1)
+  if (error) {
+    console.error(error)
+  }
+  const cur_page = Math.ceil((start_index + 1) / page_size)
+  const num_pages = Math.ceil(count / page_size)
+  let response = ``
+  if (num_pages > 1) {
+    response += `
+      <nav class="pagination is-centered">
+        ${start_index - page_size >= 0 ?
+        `<a class="pagination-previous is-left" hx-get="/prop_listing?from=${start_index - page_size}&morphisms=${morphisms}&objects=${objects}" hx-target="#results" hx-indicator=".pagination-list">«</a>`
+        : ``}
+        <span class="pagination-list">Page ${cur_page} of ${num_pages} <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span></span>
+        ${start_index + page_size < count ?
+        `<a class="pagination-next is-right" hx-get="/prop_listing?from=${start_index + page_size}&morphisms=${morphisms}&objects=${objects}" hx-target="#results" hx-indicator=".pagination-list">»</a>`
+        : ``}
+      </nav>
+      `
+  }
+  response += `
+    <table class="table is-fullwidth">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>`
+  for (const i of data) {
+    response += `
+      <tr>
+        <td>${i.id.slice(0, 7)}...</td>
+        <td>${i.name == null ? '<span class="has-text-grey">N/A</span>' : i.name}</td>
+        <td>${i.description == null ? '<span class="has-text-grey">N/A</span>' : i.description}</td>
+      </tr>`
+  }
+  response += "</tbody></table>"
+  res.send(response)
+})
+
 
 app.get('/submit_button', (req, res) => {
   res.send('<input type="submit" value="Search" class="button is-link"></input>')
