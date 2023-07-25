@@ -186,16 +186,22 @@ app.get('/query_listing', async (req, res) => {
   const objects = req.query.objects != '' ? parseInt(req.query.objects) : null
   const sat = req.query.satisfying
   const nonsat = req.query.not_satisfying
-  const { data: true_prop_ids } = await supabase
+  const { data: true_prop_ids, error: e0 } = await supabase
     .from('Propositions')
     .select('id')
     .in('name', sat.split(','))
-  const { data: false_prop_ids } = await supabase
+  if (e0) {
+    console.error(e0)
+  }
+  const { data: false_prop_ids, error: e1 } = await supabase
     .from('Propositions')
     .select('id')
     .in('name', nonsat.split(','))
+  if (e1) {
+    console.error(e1)
+  }
   const cols = ['id', 'index', 'friendly_name', ...true_prop_ids.map((_, i) => `truekb${i}:KnowledgeBase!inner(proposition,value)`), ...false_prop_ids.map((_, i) => `falsekb${i}:KnowledgeBase!inner(proposition,value)`)]
-  const { data, count } = await supabase
+  const { data, error, status, count } = await supabase
     .from('Categories')
     .select(cols.join(','), { count: 'exact' })
     .or(morphisms == null ? 'morphisms.gte.0' : `morphisms.eq.${morphisms}`)
@@ -203,6 +209,20 @@ app.get('/query_listing', async (req, res) => {
     .match(Object.fromEntries(true_prop_ids.flatMap((p, i) => [[`truekb${i}.proposition`, p.id], [`truekb${i}.value`, true]])))
     .match(Object.fromEntries(false_prop_ids.flatMap((p, i) => [[`falsekb${i}.proposition`, p.id], [`falsekb${i}.value`, false]])))
     .range(0, 9)
+  if (status >= 500 && status < 600) {
+    res.send(`
+    <div class="notification is-danger">
+      <strong>Server Error.</strong>
+      <br>
+      This is most likely a timeout -- all queries are limited to 5s of compute time. Please try a more selective query.
+    </div>
+    <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+    `)
+    return
+  }
+  if (error) {
+    console.error(error)
+  }
   let response = `
   <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
   <table class="table is-fullwidth">
