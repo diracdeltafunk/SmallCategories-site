@@ -85,6 +85,7 @@ app.get('/category_listing', async (req, res) => {
     .select('id,index,friendly_name', { count: 'exact' })
     .eq('morphisms', morphisms)
     .eq('objects', objects)
+    .order('index', { ascending: true })
     .range(start_index, start_index + page_size - 1)
   if (error) {
     console.error(error)
