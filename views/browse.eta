@@ -21,7 +21,7 @@
             <div class="columns">
                 <div class="column">
                     <div class="notification is-info is-light">
-                        <form hx-get="/category_listing" hx-target="#results" hx-disinherit="hx-target"
+                        <form hx-get="/browse_listing" hx-target="#results" hx-disinherit="hx-target"
                             autocomplete="off">
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">

@@ -20,6 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 import { Eta } from "eta"
 const eta = new Eta({ views: "views", cache: process.env.NODE_ENV == 'production' })
 
+// First, try to 
 app.use(express.static('static'))
 
 app.get('/', (req, res) => {
@@ -77,7 +78,7 @@ app.get('/objects_nav_list', async (req, res) => {
   res.send(response)
 })
 
-app.get('/category_listing', async (req, res) => {
+app.get('/browse_listing', async (req, res) => {
   const page_size = 10
   const start_index = req.query.from ? parseInt(req.query.from) : 0
   const morphisms = req.query.morphisms
@@ -187,21 +188,23 @@ app.get('/query', (req, res) => {
 })
 
 app.get('/query_listing', async (req, res) => {
-  const morphisms = req.query.morphisms != '' ? parseInt(req.query.morphisms) : null
-  const objects = req.query.objects != '' ? parseInt(req.query.objects) : null
+  const morphisms_lb = req.query.morphisms_lb != '' ? parseInt(req.query.morphisms_lb) : 0
+  const morphisms_ub = req.query.morphisms_ub != '' ? parseInt(req.query.morphisms_ub) : 32767
+  const objects_lb = req.query.objects_lb != '' ? parseInt(req.query.objects_lb) : 0
+  const objects_ub = req.query.objects_ub != '' ? parseInt(req.query.objects_ub) : 32767
   const sat = req.query.satisfying
   const nonsat = req.query.not_satisfying
   const { data: true_prop_ids, error: e0 } = await supabase
     .from('Propositions')
     .select('id')
-    .in('name', sat.split(','))
+    .in('name', sat.replace(/\s/g, '').split(','))
   if (e0) {
     console.error(e0)
   }
   const { data: false_prop_ids, error: e1 } = await supabase
     .from('Propositions')
     .select('id')
-    .in('name', nonsat.split(','))
+    .in('name', nonsat.replace(/\s/g, '').split(','))
   if (e1) {
     console.error(e1)
   }
@@ -209,10 +212,13 @@ app.get('/query_listing', async (req, res) => {
   const { data, error, status, count } = await supabase
     .from('Categories')
     .select(cols.join(','), { count: 'exact' })
-    .or(morphisms == null ? 'morphisms.gte.0' : `morphisms.eq.${morphisms}`)
-    .or(objects == null ? 'objects.gte.0' : `objects.eq.${objects}`)
+    .gte('morphisms', morphisms_lb)
+    .lte('morphisms', morphisms_ub)
+    .gte('objects', objects_lb)
+    .lte('objects', objects_ub)
     .match(Object.fromEntries(true_prop_ids.flatMap((p, i) => [[`truekb${i}.proposition`, p.id], [`truekb${i}.value`, true]])))
     .match(Object.fromEntries(false_prop_ids.flatMap((p, i) => [[`falsekb${i}.proposition`, p.id], [`falsekb${i}.value`, false]])))
+    .order('morphisms')
     .range(0, 9)
   if (status >= 500 && status < 600) {
     res.send(`

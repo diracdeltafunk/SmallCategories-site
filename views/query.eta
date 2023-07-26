@@ -18,9 +18,15 @@
             </div>
         </div>
         <section class="section">
-            <p class="block">For now, unfortunately, you'll need to know the names of each proposition you want to
+            <p class="block">
+                For now, unfortunately, you'll need to know the names of each proposition you want to
                 reference. This
-                will be improved in a future update!</p>
+                will be improved in a future update!
+            </p>
+            <p class="block">
+                Querying is also quite slow at the moment. Improving query times is a main development
+                priority.
+            </p>
             <div class="columns">
                 <div class="column">
                     <div class="notification is-primary is-light">
@@ -37,7 +43,8 @@
                                             </a>
                                         </div>
                                         <p class="control">
-                                            <input class="input" type="text" name="morphisms_lb" placeholder="e.g. 2">
+                                            <input class="input" type="text" name="morphisms_lb"
+                                                placeholder="Default 0">
                                         </p>
                                     </div>
                                     <div class="field has-addons">
@@ -47,7 +54,8 @@
                                             </a>
                                         </div>
                                         <p class="control">
-                                            <input class="input" type="text" name="morphisms_ub" placeholder="e.g. 6">
+                                            <input class="input" type="text" name="morphisms_ub"
+                                                placeholder="Default 32767">
                                         </p>
                                     </div>
                                 </div>
@@ -64,7 +72,7 @@
                                             </a>
                                         </div>
                                         <p class="control">
-                                            <input class="input" type="text" name="objects_lb" placeholder="e.g. 3">
+                                            <input class="input" type="text" name="objects_lb" placeholder="Default 0">
                                         </p>
                                     </div>
                                     <div class="field has-addons">
@@ -74,7 +82,8 @@
                                             </a>
                                         </div>
                                         <p class="control">
-                                            <input class="input" type="text" name="objects_ub" placeholder="e.g. 3">
+                                            <input class="input" type="text" name="objects_ub"
+                                                placeholder="Default 32767">
                                         </p>
                                     </div>
                                 </div>
