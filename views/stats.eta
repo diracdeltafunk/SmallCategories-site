@@ -36,7 +36,7 @@
                 </div>
                 <div class="level-item has-text-centered">
                     <div>
-                        <p class="heading">Relationships</p>
+                        <p class="heading">Prop. Values</p>
                         <p class="title" hx-get="/count_rels" hx-trigger="load"><span class="icon"><i
                                     class="fa-solid fa-ellipsis fa-fade"></i></span></p>
                     </div>
