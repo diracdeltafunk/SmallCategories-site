@@ -23,37 +23,100 @@
                 will be improved in a future update!</p>
             <div class="columns">
                 <div class="column">
-                    <form hx-get="/query_listing" hx-target="#results" hx-indicator="#results" autocomplete="off">
-                        <div class="field">
-                            <label class="label">Number of Morphisms</label>
-                            <div class="control">
-                                <input class="input" type="text" name="morphisms" placeholder="e.g. 4">
+                    <div class="notification is-primary is-light">
+                        <form hx-get="/query_listing" hx-target="#results" hx-indicator="#results" autocomplete="off">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">Morphisms</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field has-addons">
+                                        <div class="control">
+                                            <a class="button is-static">
+                                                ≥
+                                            </a>
+                                        </div>
+                                        <p class="control">
+                                            <input class="input" type="text" name="morphisms_lb" placeholder="e.g. 2">
+                                        </p>
+                                    </div>
+                                    <div class="field has-addons">
+                                        <div class="control">
+                                            <a class="button is-static">
+                                                ≤
+                                            </a>
+                                        </div>
+                                        <p class="control">
+                                            <input class="input" type="text" name="morphisms_ub" placeholder="e.g. 6">
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Number of Objects</label>
-                            <div class="control">
-                                <input class="input" type="text" name="objects" placeholder="e.g. 3">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">Objects</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field has-addons">
+                                        <div class="control">
+                                            <a class="button is-static">
+                                                ≥
+                                            </a>
+                                        </div>
+                                        <p class="control">
+                                            <input class="input" type="text" name="objects_lb" placeholder="e.g. 3">
+                                        </p>
+                                    </div>
+                                    <div class="field has-addons">
+                                        <div class="control">
+                                            <a class="button is-static">
+                                                ≤
+                                            </a>
+                                        </div>
+                                        <p class="control">
+                                            <input class="input" type="text" name="objects_ub" placeholder="e.g. 3">
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Satisfying</label>
-                            <div class="control">
-                                <input class="input" type="text" name="satisfying"
-                                    placeholder="Comma separated, e.g. is_discrete,has_initial_object">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">Satisfying</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input class="input" type="text" name="satisfying"
+                                                placeholder="Comma separated, e.g. is_discrete,has_initial_object">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Not Satisfying</label>
-                            <div class="control">
-                                <input class="input" type="text" name="not_satisfying"
-                                    placeholder="Comma separated, e.g. has_terminal_object,is_groupoid">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">Not Satisfying</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input class="input" type="text" name="not_satisfying"
+                                                placeholder="Comma separated, e.g. has_terminal_object,is_groupoid">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="control">
-                            <input type="submit" value="Submit" class="button is-link"></input>
-                        </div>
-                    </form>
+                            <div class="field is-horizontal">
+                                <div class="field-label"></div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="submit" value="Submit" class="button is-link"></input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="column" id="results">
                     <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>

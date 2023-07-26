@@ -38,7 +38,7 @@ app.get('/morphisms_nav_list', async (req, res) => {
     console.error(error)
   }
   let response = `
-  <div class="select is-small">
+  <div class="select">
   <select name="morphisms" hx-get="/objects_nav_list" hx-target="#objects-nav">
   <option disabled selected></option>
   `
@@ -63,7 +63,7 @@ app.get('/objects_nav_list', async (req, res) => {
   }
   let response = `
   <div class="control" id="submit" hx-swap-oob="true"></div>
-  <div class="select is-small">
+  <div class="select">
   <select name="objects" hx-get="/browse_button" hx-target="#submit">
   <option disabled selected></option>
   `
