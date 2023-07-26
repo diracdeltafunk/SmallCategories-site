@@ -18,7 +18,8 @@
             </div>
         </div>
         <section class="section">
-            <p>For now, unfortunately, you'll need to know the names of each proposition you want to reference. This
+            <p class="block">For now, unfortunately, you'll need to know the names of each proposition you want to
+                reference. This
                 will be improved in a future update!</p>
             <div class="columns">
                 <div class="column">
@@ -39,17 +40,19 @@
                             <label class="label">Satisfying</label>
                             <div class="control">
                                 <input class="input" type="text" name="satisfying"
-                                    placeholder="e.g. is_discrete,has_initial_object">
+                                    placeholder="Comma separated, e.g. is_discrete,has_initial_object">
                             </div>
                         </div>
                         <div class="field">
                             <label class="label">Not Satisfying</label>
                             <div class="control">
                                 <input class="input" type="text" name="not_satisfying"
-                                    placeholder="e.g. has_terminal_object">
+                                    placeholder="Comma separated, e.g. has_terminal_object,is_groupoid">
                             </div>
                         </div>
-                        <input type="submit" value="Submit" class="button is-link"></input>
+                        <div class="control">
+                            <input type="submit" value="Submit" class="button is-link"></input>
+                        </div>
                     </form>
                 </div>
                 <div class="column" id="results">

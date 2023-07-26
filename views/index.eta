@@ -25,10 +25,11 @@
                     </p>
                 </div>
                 <div class="level notification is-warning">
-                    <span class="icon is-large"><i class="fa-solid fa-triangle-exclamation fa-2x"></i></span>
-                    SmallCats.info is in active development. The database and functionality are not yet
-                    complete, and you are likely to encounter bugs!
-                    <span class="icon is-large"><i class="fa-solid fa-triangle-exclamation fa-2x"></i></span>
+                    <span class="icon is-large mr-3"><i class="fa-solid fa-triangle-exclamation fa-2x"></i></span>
+                    <p class="block">
+                        SmallCats.info is in active development. The database and functionality are not yet complete,
+                        and you are likely to encounter bugs!
+                    </p>
                 </div>
                 <div class="level">
                     <p class="buttons">

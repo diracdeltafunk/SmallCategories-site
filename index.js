@@ -37,14 +37,17 @@ app.get('/morphisms_nav_list', async (req, res) => {
   if (error) {
     console.error(error)
   }
-  let response = ""
+  let response = `
+  <div class="select is-small">
+  <select name="morphisms" hx-get="/objects_nav_list" hx-target="#objects-nav">
+  `
   for (const i of data) {
-    response += `
-    <label class="radio">
-      <input type="radio" name="morphisms" value="${i.morphisms}" hx-get="objects_nav_list" hx-target="#objects-nav">
-      ${i.morphisms}
-    </label>`
+    response += `<option value="${i.morphisms}">${i.morphisms}</option>`
   }
+  response += `
+  </select>
+  </div>
+  `
   res.send(response)
 })
 
@@ -57,14 +60,18 @@ app.get('/objects_nav_list', async (req, res) => {
   if (error) {
     console.error(error)
   }
-  let response = `<div class="control" id="submit" hx-swap-oob="true"></div>`
+  let response = `
+  <div class="control" id="submit" hx-swap-oob="true"></div>
+  <div class="select is-small">
+  <select name="objects" hx-get="/browse_button" hx-target="#submit">
+  `
   for (const i of data) {
-    response += `
-    <label class="radio">
-      <input type="radio" name="objects" value="${i.objects}" hx-get="/submit_button" hx-target="#submit">
-      ${i.objects}
-    </label>`
+    response += `<option value="${i.objects}">${i.objects}</option>`
   }
+  response += `
+  </select>
+  </div>
+  `
   res.send(response)
 })
 
@@ -172,11 +179,6 @@ app.get('/prop_listing', async (req, res) => {
   res.send(response)
 })
 
-
-app.get('/submit_button', (req, res) => {
-  res.send('<input type="submit" value="Search" class="button is-link"></input>')
-})
-
 app.get('/query', (req, res) => {
   res.send(eta.render("./query"))
 })
@@ -244,11 +246,9 @@ app.get('/query_listing', async (req, res) => {
     </tr>`
   }
   response += "</tbody></table>"
-  if (count > 10) {
-    response += `
-    <p>Showing 10 of ${count} results.</p>
+  response += `
+    <p>Showing ${count > 10 ? `10 of ${count}` : `${count}`} results.</p>
     `
-  }
   res.send(response)
 })
 

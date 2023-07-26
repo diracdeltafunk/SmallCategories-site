@@ -19,25 +19,34 @@
         </div>
         <section class="section">
             <div class="columns">
-                <div class="column is-narrow notification is-info is-light">
-                    <form hx-get="/category_listing" hx-target="#results" hx-disinherit="hx-target" autocomplete="off">
-                        <div class="field">
-                            <label class="label">Morphisms</label>
-                            <div class="control" hx-get="/morphisms_nav_list" hx-trigger="load">
-                                <span class="icon"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+                <div class="column is-one-third">
+                    <div class="notification is-info is-light">
+                        <form hx-get="/category_listing" hx-target="#results" hx-disinherit="hx-target"
+                            autocomplete="off">
+                            <div class="field is-horizontal">
+                                <div class="field-label">
+                                    <label class="label">Morphisms</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="control" hx-get="/morphisms_nav_list" hx-trigger="load">
+                                        <span class="icon"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Objects</label>
-                            <div class="control" id="objects-nav">
-                                <p class="has-text-grey">Select a number of morphisms</p>
+                            <div class="field is-horizontal">
+                                <div class="field-label">
+                                    <label class="label">Objects</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="control" id="objects-nav">
+                                        <p class="has-text-grey">Select a number of morphisms</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field">
                             <div class="control" id="submit">
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
                 <div class="column" id="results">
                 </div>
