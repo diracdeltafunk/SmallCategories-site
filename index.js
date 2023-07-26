@@ -40,6 +40,7 @@ app.get('/morphisms_nav_list', async (req, res) => {
   let response = `
   <div class="select is-small">
   <select name="morphisms" hx-get="/objects_nav_list" hx-target="#objects-nav">
+  <option disabled selected></option>
   `
   for (const i of data) {
     response += `<option value="${i.morphisms}">${i.morphisms}</option>`
@@ -64,6 +65,7 @@ app.get('/objects_nav_list', async (req, res) => {
   <div class="control" id="submit" hx-swap-oob="true"></div>
   <div class="select is-small">
   <select name="objects" hx-get="/browse_button" hx-target="#submit">
+  <option disabled selected></option>
   `
   for (const i of data) {
     response += `<option value="${i.objects}">${i.objects}</option>`
