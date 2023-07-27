@@ -24,7 +24,7 @@
 <nav class="navbar" role="navigation">
     <div class="navbar-brand">
         <a class="navbar-item" href="/">
-            <span class="has-text-weight-semibold">SmallCategories</span>
+            <span class="has-text-weight-semibold">😺 SmallCategories</span>
         </a>
         <a role="button" class="navbar-burger" data-target="navbarLinks">
             <span></span>
