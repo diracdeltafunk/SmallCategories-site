@@ -150,11 +150,11 @@ app.get('/prop_listing', async (req, res) => {
     response += `
       <nav class="pagination is-centered">
         ${start_index - page_size >= 0 ?
-        `<a class="pagination-previous is-left" hx-get="/prop_listing?from=${start_index - page_size}&morphisms=${morphisms}&objects=${objects}" hx-target="#results" hx-indicator=".pagination-list">«</a>`
+        `<a class="pagination-previous is-left" hx-get="/prop_listing?from=${start_index - page_size}" hx-target="#results" hx-indicator=".pagination-list">«</a>`
         : ``}
         <span class="pagination-list">Page ${cur_page} of ${num_pages} <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span></span>
         ${start_index + page_size < count ?
-        `<a class="pagination-next is-right" hx-get="/prop_listing?from=${start_index + page_size}&morphisms=${morphisms}&objects=${objects}" hx-target="#results" hx-indicator=".pagination-list">»</a>`
+        `<a class="pagination-next is-right" hx-get="/prop_listing?from=${start_index + page_size}" hx-target="#results" hx-indicator=".pagination-list">»</a>`
         : ``}
       </nav>
       `
