@@ -1,0 +1,9 @@
+<div class="control" id="submit" hx-swap-oob="true"></div>
+<div class="select">
+  <select name="objects" hx-get="/browse_button" hx-target="#submit">
+    <option disabled selected></option>
+    <% it.data.forEach(function(i) { %>
+        <option value="<%= i.objects %>"><%= i.objects %></option>
+    <% }) %>
+  </select>
+</div>

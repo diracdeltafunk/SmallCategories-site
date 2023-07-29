@@ -1,0 +1,28 @@
+<span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+<table class="table is-fullwidth">
+    <thead>
+        <tr>
+            <th>Index</th>
+            <th>Name</th>
+            <th>ID <i class="fa-solid fa-link"></i></th>
+        </tr>
+    </thead>
+    <tbody>
+    <% it.data.forEach(function(row) { %>
+        <tr>
+            <th><%= row.index %></th>
+            <td>
+                <% if (row.friendly_name == null) { %>
+                    <span class="has-text-grey">N/A</span>
+                <% } else { %>
+                    <%= row.friendly_name %>
+                <% } %>
+            </td>
+            <td><a href="/category/<%= row.id %>"><%= row.id.slice(0, 7) %></a></td>
+        </tr>
+    <% }) %>
+    </tbody>
+</table>
+<p class="help">
+    Showing <% if (count > 10) { %> 10 of <% } %> <%= it.count %> results.
+</p>

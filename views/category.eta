@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+
+        <div class="hero is-success">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-paw"></i>
+                    </span>
+                    &nbsp;
+                    SmallCat(<%= it.morphisms %>,<%= it.objects %>,<%= it.index %>)
+                </h1>
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="columns">
+                <div class="column">
+                    <h4 class="title is-4">
+                        Quick Reference
+                    </h4>
+                    <table class="table is-striped">
+                        <tr>
+                            <th>ID</th>
+                            <td>
+                                <%= it.id %>
+                            </td>
+                            </td>
+                        <tr>
+                            <th>Morphisms</th>
+                            <td>
+                                <%= it.morphisms %>
+                            </td>
+                        <tr>
+                            <th>Objects</th>
+                            <td>
+                                <%= it.objects %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Index</th>
+                            <td>
+                                <%= it.index %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <td>
+                                <% if (it.friendly_name !==null ) { %>
+                                    <%= it.friendly_name %>
+                                <% } else {%>
+                                    <span class="has-text-grey-light">N/A</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>
+                                <% if (it.description !==null ) { %>
+                                    <%= it.description %>
+                                <% } else {%>
+                                    <span class="has-text-grey-light">N/A</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="column">
+                    <h4 class="title is-4">
+                        Table
+                    </h4>
+                    <table class="table is-bordered">
+                        <tbody>
+                            <tr>
+                                <td><i>row</i> ∘ <i>col</i></td>
+                                <% for (let i=0; i < it.morphisms; i++) { %>
+                                    <th>
+                                        <%= i %>
+                                    </th>
+                                <% } %>
+                            </tr>
+                            <% it.table.forEach(function(row, j){ %>
+                                <tr>
+                                    <th>
+                                        <%= j %>
+                                    </th>
+                                    <% row.forEach(function(cell){ %>
+                                        <td>
+                                            <% if (cell < it.morphisms) { %>
+                                                <%= cell %>
+                                            <% } else { %>
+                                                <span class="has-text-grey-light">/</span>
+                                            <% } %>
+                                        </td>
+                                    <% }) %>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                    <p class="help">
+                        "<span class="has-text-grey-light">/</span>" indicates that the composition is not defined.
+                    </p>
+                </div>
+            </div>
+        </section>
+</body>
+
+</html>

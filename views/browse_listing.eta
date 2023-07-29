@@ -1,0 +1,42 @@
+<% if (it.num_pages > 1) { %>
+    <nav class="pagination is-centered">
+        <% if (it.start_index - it.page_size >= 0) { %>
+            <a class="pagination-previous is-left"
+                hx-get="/browse_listing?from=<%= it.start_index - it.page_size %>&morphisms=<%= it.morphisms %>&objects=<%= it.objects %>"
+                hx-target="#results" hx-indicator=".pagination-list">«</a>
+        <% } %>
+        <span class="pagination-list">
+            Page <%= it.cur_page %> of <%= it.num_pages %>
+            <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+        </span>
+        <% if (it.start_index + it.page_size < it.count) { %>
+            <a class="pagination-next is-right"
+                hx-get="/browse_listing?from=<%= it.start_index + it.page_size %>&morphisms=<%= it.morphisms %>&objects=<%= it.objects %>"
+                hx-target="#results" hx-indicator=".pagination-list">»</a>
+        <% } %>
+    </nav>
+<% } %>
+<table class="table is-fullwidth">
+    <thead>
+        <tr>
+            <th>Index</th>
+            <th>Name</th>
+            <th>ID <i class="fa-solid fa-link"></i></th>
+        </tr>
+    </thead>
+    <tbody>
+    <% it.data.forEach(function(row) { %>
+        <tr>
+            <th><%= row.index %></th>
+            <td>
+                <% if (row.friendly_name == null) { %>
+                    <span class="has-text-grey">N/A</span>
+                <% } else { %>
+                    <%= row.friendly_name %>
+                <% } %>
+            </td>
+            <td><a href="/category/<%= row.id %>"><%= row.id.slice(0, 7) %></a></td>
+        </tr>
+    <% }) %>
+    </tbody>
+</table>

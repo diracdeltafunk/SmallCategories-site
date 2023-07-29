@@ -1,0 +1,8 @@
+<div class="select">
+  <select name="morphisms" hx-get="/objects_nav_list" hx-target="#objects-nav">
+    <option disabled selected></option>
+    <% it.data.forEach(function(i) { %>
+      <option value="<%= i.morphisms %>"><%= i.morphisms %></option>
+    <% }) %>
+  </select>
+</div>

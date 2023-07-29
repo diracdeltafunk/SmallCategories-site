@@ -1,0 +1,48 @@
+<% if (it.num_pages > 1) { %>
+    <nav class="pagination is-centered">
+        <% if (it.start_index - it.page_size >= 0) { %>
+            <a class="pagination-previous is-left"
+                hx-get="/prop_listing?from=<%= it.start_index - it.page_size %>"
+                hx-target="#results" hx-indicator=".pagination-list">«</a>
+        <% } %>
+        <span class="pagination-list">
+            Page <%= it.cur_page %> of <%= it.num_pages %>
+            <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+        </span>
+        <% if (it.start_index + it.page_size < it.count) { %>
+            <a class="pagination-next is-right"
+                hx-get="/prop_listing?from=<%= it.start_index + it.page_size %>"
+                hx-target="#results" hx-indicator=".pagination-list">»</a>
+        <% } %>
+    </nav>
+<% } %>
+<table class="table is-fullwidth">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+    <% it.data.forEach(function(row) { %>
+        <tr>
+            <td><%= row.id.slice(0, 7) %>...</td>
+            <td>
+                <% if (row.name == null) { %>
+                    <span class="has-text-grey">N/A</span>
+                <% } else { %>
+                    <%= row.name %>
+                <% } %>
+            </td>
+            <td>
+                <% if (row.description == null) { %>
+                    <span class="has-text-grey">N/A</span>
+                <% } else { %>
+                    <%= row.description %>
+                <% } %>
+            </td>
+        </tr>
+    <% }) %>
+    </tbody>
+</table>

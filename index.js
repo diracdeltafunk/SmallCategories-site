@@ -14,11 +14,14 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 })
 
-// Cache views iff in production
-import { Eta } from "eta"
-const eta = new Eta({ views: "views", cache: process.env.NODE_ENV == 'production' })
 
-// First, try to 
+import { Eta } from "eta"
+const eta = new Eta({
+  views: "views",
+  cache: process.env.NODE_ENV === 'production' // Cache views iff in production
+})
+
+// First, try to serve static files
 app.use(express.static('static'))
 
 app.get('/', (req, res) => {
@@ -30,58 +33,33 @@ app.get('/browse', (req, res) => {
 })
 
 app.get('/morphisms_nav_list', async (req, res) => {
-  let { data, error, status } = await supabase
+  let { data, error } = await supabase
     .from('morphisms_list')
     .select('*')
   if (error) {
     console.error(error)
   }
-  let response = `
-  <div class="select">
-  <select name="morphisms" hx-get="/objects_nav_list" hx-target="#objects-nav">
-  <option disabled selected></option>
-  `
-  for (const i of data) {
-    response += `<option value="${i.morphisms}">${i.morphisms}</option>`
-  }
-  response += `
-  </select>
-  </div>
-  `
-  res.send(response)
+  res.send(eta.render("./morphisms_nav_list", { data: data }))
 })
 
 app.get('/objects_nav_list', async (req, res) => {
   const morphisms = req.query.morphisms
-  const { data, error, status } = await supabase
+  const { data, error } = await supabase
     .from('objects_list')
     .select('objects')
     .eq('morphisms', morphisms)
   if (error) {
     console.error(error)
   }
-  let response = `
-  <div class="control" id="submit" hx-swap-oob="true"></div>
-  <div class="select">
-  <select name="objects" hx-get="/browse_button" hx-target="#submit">
-  <option disabled selected></option>
-  `
-  for (const i of data) {
-    response += `<option value="${i.objects}">${i.objects}</option>`
-  }
-  response += `
-  </select>
-  </div>
-  `
-  res.send(response)
+  res.send(eta.render("./objects_nav_list", { data: data }))
 })
 
 app.get('/browse_listing', async (req, res) => {
   const page_size = 10
   const start_index = req.query.from ? parseInt(req.query.from) : 0
-  const morphisms = req.query.morphisms
-  const objects = req.query.objects
-  const { data, error, status, count } = await supabase
+  const morphisms = parseInt(req.query.morphisms)
+  const objects = parseInt(req.query.objects)
+  const { data, error, count } = await supabase
     .from('Categories')
     .select('id,index,friendly_name', { count: 'exact' })
     .eq('morphisms', morphisms)
@@ -93,40 +71,7 @@ app.get('/browse_listing', async (req, res) => {
   }
   const cur_page = Math.ceil((start_index + 1) / page_size)
   const num_pages = Math.ceil(count / page_size)
-  let response = ``
-  if (num_pages > 1) {
-    response += `
-    <nav class="pagination is-centered">
-      ${start_index - page_size >= 0 ?
-        `<a class="pagination-previous is-left" hx-get="/category_listing?from=${start_index - page_size}&morphisms=${morphisms}&objects=${objects}" hx-target="#results" hx-indicator=".pagination-list">«</a>`
-        : ``}
-      <span class="pagination-list">Page ${cur_page} of ${num_pages} <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span></span>
-      ${start_index + page_size < count ?
-        `<a class="pagination-next is-right" hx-get="/category_listing?from=${start_index + page_size}&morphisms=${morphisms}&objects=${objects}" hx-target="#results" hx-indicator=".pagination-list">»</a>`
-        : ``}
-    </nav>
-    `
-  }
-  response += `
-  <table class="table is-fullwidth">
-  <thead>
-    <tr>
-      <th>Index</th>
-      <th>Name</th>
-      <th>ID <i class="fa-solid fa-link"></i></th>
-    </tr>
-  </thead>
-  <tbody>`
-  for (const i of data) {
-    response += `
-    <tr>
-      <th>${i.index}</th>
-      <td>${i.friendly_name == null ? '<span class="has-text-grey">N/A</span>' : i.friendly_name}</td>
-      <td><a href="/category/${i.id}">${i.id.slice(0, 7)}...</a></td>
-    </tr>`
-  }
-  response += "</tbody></table>"
-  res.send(response)
+  res.send(eta.render('/browse_listing', { data: data, cur_page: cur_page, num_pages: num_pages, page_size: page_size, start_index: start_index, count: count, morphisms: morphisms, objects: objects }))
 })
 
 app.get('/props', (req, res) => {
@@ -145,40 +90,7 @@ app.get('/prop_listing', async (req, res) => {
   }
   const cur_page = Math.ceil((start_index + 1) / page_size)
   const num_pages = Math.ceil(count / page_size)
-  let response = ``
-  if (num_pages > 1) {
-    response += `
-      <nav class="pagination is-centered">
-        ${start_index - page_size >= 0 ?
-        `<a class="pagination-previous is-left" hx-get="/prop_listing?from=${start_index - page_size}" hx-target="#results" hx-indicator=".pagination-list">«</a>`
-        : ``}
-        <span class="pagination-list">Page ${cur_page} of ${num_pages} <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span></span>
-        ${start_index + page_size < count ?
-        `<a class="pagination-next is-right" hx-get="/prop_listing?from=${start_index + page_size}" hx-target="#results" hx-indicator=".pagination-list">»</a>`
-        : ``}
-      </nav>
-      `
-  }
-  response += `
-    <table class="table is-fullwidth">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>`
-  for (const i of data) {
-    response += `
-      <tr>
-        <td>${i.id.slice(0, 7)}...</td>
-        <td>${i.name == null ? '<span class="has-text-grey">N/A</span>' : i.name}</td>
-        <td>${i.description == null ? '<span class="has-text-grey">N/A</span>' : i.description}</td>
-      </tr>`
-  }
-  response += "</tbody></table>"
-  res.send(response)
+  res.send(eta.render('/prop_listing', { data: data, cur_page: cur_page, num_pages: num_pages, page_size: page_size, start_index: start_index, count: count }))
 })
 
 app.get('/query', (req, res) => {
@@ -219,44 +131,13 @@ app.get('/query_listing', async (req, res) => {
     .order('morphisms')
     .range(0, 9)
   if (status >= 500 && status < 600) {
-    res.send(`
-    <div class="notification is-danger">
-      <strong>Server Error.</strong>
-      <br>
-      This is most likely a timeout -- all queries are limited to 5s of compute time. Please try a more selective query.
-    </div>
-    <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
-    `)
+    res.send(eta.render('./timeout.eta'))
     return
   }
   if (error) {
     console.error(error)
   }
-  let response = `
-  <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
-  <table class="table is-fullwidth">
-  <thead>
-    <tr>
-      <th>Index</th>
-      <th>Name</th>
-      <th>ID <i class="fa-solid fa-link"></i></a></th>
-    </tr>
-  </thead>
-  <tbody>
-  `
-  for (const i of data) {
-    response += `
-    <tr>
-      <th>${i.index}</th>
-      <td>${i.friendly_name == null ? '<span class="has-text-grey">N/A</span>' : i.friendly_name}</td>
-      <td><a href="/category/${i.id}">${i.id.slice(0, 7)}...</a></td>
-    </tr>`
-  }
-  response += "</tbody></table>"
-  response += `
-    <p>Showing ${count > 10 ? `10 of ${count}` : `${count}`} results.</p>
-    `
-  res.send(response)
+  res.send(eta.render('./query_listing', { data: data, count: count }))
 })
 
 app.get('/stats', (req, res) => {
@@ -272,7 +153,7 @@ app.get('/support', (req, res) => {
 })
 
 app.get('/category/:id', async (req, res) => {
-  let { data, error, status, count } = await supabase
+  let { data, error } = await supabase
     .from('Categories')
     .select('*')
     .eq('id', req.params.id)
@@ -280,15 +161,15 @@ app.get('/category/:id', async (req, res) => {
     console.error(error)
   }
   if (data.length == 1) {
-    res.send(eta.render("./view-category", data[0]))
+    res.send(eta.render("./category", data[0]))
   }
   else {
-    res.send("There is not a unique category with this id!")
+    res.send("Database Error: There is not a unique category with this id!")
   }
 })
 
 app.get('/count_cats', async (req, res) => {
-  let { data, error, status, count } = await supabase
+  let { error, count } = await supabase
     .from('Categories')
     .select('*', { count: 'exact', head: true })
   if (error) {
@@ -298,7 +179,7 @@ app.get('/count_cats', async (req, res) => {
 })
 
 app.get('/count_props', async (req, res) => {
-  let { data, error, status, count } = await supabase
+  let { error, count } = await supabase
     .from('Propositions')
     .select('*', { count: 'exact', head: true })
   if (error) {
@@ -308,7 +189,7 @@ app.get('/count_props', async (req, res) => {
 })
 
 app.get('/count_rels', async (req, res) => {
-  let { data, error, status, count } = await supabase
+  let { error, count } = await supabase
     .from('KnowledgeBase')
     .select('*', { count: 'exact', head: true })
   if (error) {
