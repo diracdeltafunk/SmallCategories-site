@@ -1,5 +1,12 @@
 import 'dotenv/config'
 
+if (process.env.NODE_ENV === 'production') {
+  console.log("Running in production mode")
+}
+else {
+  console.log("Running in development mode")
+}
+
 import express from 'express'
 const app = express()
 const port = process.env.PORT
