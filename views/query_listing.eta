@@ -24,5 +24,9 @@
     </tbody>
 </table>
 <p class="help">
-    Showing <% if (count > 10) { %> 10 of <% } %> <%= it.count %> results.
+    Showing
+    <% if (it.count > it.data.length) { %>
+        <%= it.data.length %> of
+    <% } %>
+    <%= it.count %> results.
 </p>

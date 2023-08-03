@@ -20,12 +20,7 @@
         <section class="section">
             <p class="block">
                 For now, unfortunately, you'll need to know the names of each proposition you want to
-                reference. This
-                will be improved in a future update!
-            </p>
-            <p class="block">
-                Querying is also quite slow at the moment. Improving query times is a main development
-                priority.
+                reference. This will be improved in a future update! See <a href="/props">here</a> for a list of all supported propositions.
             </p>
             <div class="columns">
                 <div class="column">

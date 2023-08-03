@@ -118,18 +118,20 @@ app.get('/query_listing', async (req, res) => {
   if (e1) {
     console.error(e1)
   }
-  const cols = ['id', 'index', 'friendly_name', ...true_prop_ids.map((_, i) => `truekb${i}:KnowledgeBase!inner(proposition,value)`), ...false_prop_ids.map((_, i) => `falsekb${i}:KnowledgeBase!inner(proposition,value)`)]
+
   const { data, error, status, count } = await supabase
-    .from('Categories')
-    .select(cols.join(','), { count: 'exact' })
-    .gte('morphisms', morphisms_lb)
-    .lte('morphisms', morphisms_ub)
-    .gte('objects', objects_lb)
-    .lte('objects', objects_ub)
-    .match(Object.fromEntries(true_prop_ids.flatMap((p, i) => [[`truekb${i}.proposition`, p.id], [`truekb${i}.value`, true]])))
-    .match(Object.fromEntries(false_prop_ids.flatMap((p, i) => [[`falsekb${i}.proposition`, p.id], [`falsekb${i}.value`, false]])))
-    .order('morphisms')
-    .range(0, 9)
+    .rpc('query_listing', {
+      morphisms_lb: morphisms_lb,
+      morphisms_ub: morphisms_ub,
+      objects_lb: objects_lb,
+      objects_ub: objects_ub,
+      spec: [
+        ...true_prop_ids.map(x => `(${x.id}, true)`),
+        ...false_prop_ids.map(x => `(${x.id}, false)`)
+      ]
+    }, { count: 'exact' })
+    .limit(10)
+
   if (status >= 500 && status < 600) {
     res.send(eta.render('./timeout.eta'))
     return
