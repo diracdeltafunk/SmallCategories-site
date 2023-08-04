@@ -8,110 +8,144 @@
 <body>
     <%~ include("./navbar") %>
 
-        <div class="hero is-success">
-            <div class="hero-body">
-                <h1 class="title">
-                    <span class="icon">
-                        <i class="fa-solid fa-paw"></i>
-                    </span>
-                    &nbsp;
-                    SmallCat(<%= it.morphisms %>,<%= it.objects %>,<%= it.index %>)
-                </h1>
+    <div class="hero is-success">
+        <div class="hero-body">
+            <h1 class="title">
+                <span class="icon">
+                    <i class="fa-solid fa-paw"></i>
+                </span>
+                &nbsp;
+                SmallCat(<%= it.morphisms %>,<%= it.objects %>,<%= it.index %>)
+            </h1>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="columns">
+            <div class="column">
+                <h4 class="title is-4">
+                    Quick Reference
+                </h4>
+                <table class="table is-striped">
+                    <tr>
+                        <th>Web ID</th>
+                        <td>
+                            <%= it.id %>
+                        </td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Morphisms</th>
+                        <td>
+                            <%= it.morphisms %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Objects</th>
+                        <td>
+                            <%= it.objects %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Index</th>
+                        <td>
+                            <%= it.index %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td>
+                            <% if (it.friendly_name !==null ) { %>
+                                <%= it.friendly_name %>
+                            <% } else {%>
+                                <span class="has-text-grey-light">N/A</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>
+                            <% if (it.description !==null ) { %>
+                                <%= it.description %>
+                            <% } else {%>
+                                <span class="has-text-grey-light">N/A</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <% if (it.morphisms > 0) { %>
+            <div class="column">
+                <h4 class="title is-4">
+                    Visualization
+                </h4>
+                <p class="block">
+                This feature is still janky! Please excuse the mess.
+                </p>
+                <div class="box">
+                    <%~ include("./viz", { objects: it.objects, morphisms: it.morphisms, table: it.table }) %>
+                </div>
+                <p class="help">
+                    <% if (it.objects > 1) {%>
+                        Morphisms 0 through <%= it.objects - 1 %> are identities, shown as objects in this visualization.
+                    <%} else {%>
+                        Morphism 0 is an identity, shown as an object in this visualization.
+                    <%}%>
+                </p>
+            </div>
+            <% } %>
+        </div>
+    </section>
+    <% if (it.morphisms > 0) { %>
+    <section class="section">
+        <div class="columns">
+            <div class="column">
+                <h4 class="title is-4">
+                    Table
+                </h4>
+                <table class="table is-bordered">
+                    <tbody>
+                        <tr>
+                            <td><i>row</i> ∘ <i>col</i></td>
+                            <% for (let i=0; i < it.morphisms; i++) { %>
+                                <th>
+                                    <%= i %>
+                                </th>
+                            <% } %>
+                        </tr>
+                        <% it.table.forEach(function(row, j){ %>
+                            <tr>
+                                <th>
+                                    <%= j %>
+                                </th>
+                                <% row.forEach(function(cell){ %>
+                                    <td>
+                                        <% if (cell < it.morphisms) { %>
+                                            <%= cell %>
+                                        <% } else { %>
+                                            <span class="has-text-grey-light">/</span>
+                                        <% } %>
+                                    </td>
+                                <% }) %>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <p class="help">
+                    <% if (it.objects > 1) {%>
+                        Morphisms 0 through <%= it.objects - 1 %> are identities.
+                    <%} else {%>
+                        Morphism 0 is an identity.
+                    <%}%>
+                    <% if (it.table.some(r => r.some(e => e == it.morphisms))) { %>
+                    <br>
+                    "<span class="has-text-grey-light">/</span>" indicates that the composition is not defined.
+                    <% } %>
+                </p>
             </div>
         </div>
-
-        <section class="section">
-            <div class="columns">
-                <div class="column">
-                    <h4 class="title is-4">
-                        Quick Reference
-                    </h4>
-                    <table class="table is-striped">
-                        <tr>
-                            <th>Web ID</th>
-                            <td>
-                                <%= it.id %>
-                            </td>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Morphisms</th>
-                            <td>
-                                <%= it.morphisms %>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Objects</th>
-                            <td>
-                                <%= it.objects %>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Index</th>
-                            <td>
-                                <%= it.index %>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Name</th>
-                            <td>
-                                <% if (it.friendly_name !==null ) { %>
-                                    <%= it.friendly_name %>
-                                <% } else {%>
-                                    <span class="has-text-grey-light">N/A</span>
-                                <% } %>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Description</th>
-                            <td>
-                                <% if (it.description !==null ) { %>
-                                    <%= it.description %>
-                                <% } else {%>
-                                    <span class="has-text-grey-light">N/A</span>
-                                <% } %>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="column">
-                    <h4 class="title is-4">
-                        Table
-                    </h4>
-                    <table class="table is-bordered">
-                        <tbody>
-                            <tr>
-                                <td><i>row</i> ∘ <i>col</i></td>
-                                <% for (let i=0; i < it.morphisms; i++) { %>
-                                    <th>
-                                        <%= i %>
-                                    </th>
-                                <% } %>
-                            </tr>
-                            <% it.table.forEach(function(row, j){ %>
-                                <tr>
-                                    <th>
-                                        <%= j %>
-                                    </th>
-                                    <% row.forEach(function(cell){ %>
-                                        <td>
-                                            <% if (cell < it.morphisms) { %>
-                                                <%= cell %>
-                                            <% } else { %>
-                                                <span class="has-text-grey-light">/</span>
-                                            <% } %>
-                                        </td>
-                                    <% }) %>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                    <p class="help">
-                        "<span class="has-text-grey-light">/</span>" indicates that the composition is not defined.
-                    </p>
-                </div>
-            </div>
-        </section>
+    </section>
+    <% } %>
 </body>
 
 </html>
