@@ -100,31 +100,30 @@ app.get('/prop_listing', async (req, res) => {
   res.send(eta.render('/prop_listing', { data: data, cur_page: cur_page, num_pages: num_pages, page_size: page_size, start_index: start_index, count: count }))
 })
 
+app.get('/props_search/:partial', async (req, res) => {
+  const { data, error } = await supabase
+    .from('Propositions')
+    .select('id, name')
+    .ilike('name', `%${req.params.partial}%`)
+  if (error) {
+    console.error(error)
+  }
+  res.json(data)
+})
+
 app.get('/query', (req, res) => {
   res.send(eta.render("./query"))
 })
 
 app.get('/query_listing', async (req, res) => {
-  const morphisms_lb = req.query.morphisms_lb != '' ? parseInt(req.query.morphisms_lb) : 0
-  const morphisms_ub = req.query.morphisms_ub != '' ? parseInt(req.query.morphisms_ub) : 32767
-  const objects_lb = req.query.objects_lb != '' ? parseInt(req.query.objects_lb) : 0
-  const objects_ub = req.query.objects_ub != '' ? parseInt(req.query.objects_ub) : 32767
-  const sat = req.query.satisfying
-  const nonsat = req.query.not_satisfying
-  const { data: true_prop_ids, error: e0 } = await supabase
-    .from('Propositions')
-    .select('id')
-    .in('name', sat.replace(/\s/g, '').split(','))
-  if (e0) {
-    console.error(e0)
-  }
-  const { data: false_prop_ids, error: e1 } = await supabase
-    .from('Propositions')
-    .select('id')
-    .in('name', nonsat.replace(/\s/g, '').split(','))
-  if (e1) {
-    console.error(e1)
-  }
+  const morphisms_lb = req.query.morphisms_lb ? parseInt(req.query.morphisms_lb) : 0
+  const morphisms_ub = req.query.morphisms_ub ? parseInt(req.query.morphisms_ub) : 32767
+  const objects_lb = req.query.objects_lb ? parseInt(req.query.objects_lb) : 0
+  const objects_ub = req.query.objects_ub ? parseInt(req.query.objects_ub) : 32767
+  const true_prop_ids = req.query.satisfying ? [].concat(req.query.satisfying) : []
+  const false_prop_ids = req.query.not_satisfying ? [].concat(req.query.not_satisfying) : []
+  console.log(req.query.satisfying, req.query.not_satisfying)
+  console.log(true_prop_ids, false_prop_ids)
 
   const { data, error, status, count } = await supabase
     .rpc('query_listing', {
@@ -133,8 +132,8 @@ app.get('/query_listing', async (req, res) => {
       objects_lb: objects_lb,
       objects_ub: objects_ub,
       spec: [
-        ...true_prop_ids.map(x => `(${x.id}, true)`),
-        ...false_prop_ids.map(x => `(${x.id}, false)`)
+        ...true_prop_ids.map(x => `(${x}, true)`),
+        ...false_prop_ids.map(x => `(${x}, false)`)
       ]
     }, { count: 'exact' })
     .limit(10)

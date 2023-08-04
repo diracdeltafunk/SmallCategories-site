@@ -28,5 +28,5 @@
     <% if (it.count > it.data.length) { %>
         <%= it.data.length %> of
     <% } %>
-    <%= it.count %> results.
+    <%= it.count %> result<% if (it.count != 1) { %>s<% } %>.
 </p>

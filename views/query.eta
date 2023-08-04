@@ -3,133 +3,146 @@
 
 <head>
     <%~ include("./common_head") %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/dist/css/bulma-tagsinput.min.css" integrity="sha256-Oj0n5+lE3U6z0TMiGf1q97uu8JPs6ngLaRKyP7bIFcw=" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/dist/js/bulma-tagsinput.min.js" integrity="sha256-pYgopZUHcvZmb/GMRVqIhKV6Cu5/ZYuYz69b/fhAVHw=" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <%~ include("./navbar") %>
-        <div class="hero is-primary">
-            <div class="hero-body">
-                <h1 class="title">
-                    <span class="icon">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                    Query
-                </h1>
+    <div class="hero is-primary">
+        <div class="hero-body">
+            <h1 class="title">
+                <span class="icon">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                Query
+            </h1>
+        </div>
+    </div>
+    <section class="section">
+        <p class="block">
+            For now, unfortunately, you'll need to know the names of each proposition you want to
+            reference. This will be improved in a future update! See <a href="/props">here</a> for a list of all supported propositions.
+        </p>
+        <div class="columns">
+            <div class="column">
+                <div class="notification is-primary is-light">
+                    <form hx-get="/query_listing" hx-target="#results" hx-disinherit="hx-target" hx-indicator="#results" autocomplete="off">
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label">Morphisms</label>
+                            </div>
+                            <div class="field-body">
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <a class="button is-static">
+                                            ≥
+                                        </a>
+                                    </div>
+                                    <p class="control">
+                                        <input class="input" type="text" name="morphisms_lb"
+                                            placeholder="Default 0">
+                                    </p>
+                                </div>
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <a class="button is-static">
+                                            ≤
+                                        </a>
+                                    </div>
+                                    <p class="control">
+                                        <input class="input" type="text" name="morphisms_ub"
+                                            placeholder="Default 32767">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label">Objects</label>
+                            </div>
+                            <div class="field-body">
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <a class="button is-static">
+                                            ≥
+                                        </a>
+                                    </div>
+                                    <p class="control">
+                                        <input class="input" type="text" name="objects_lb" placeholder="Default 0">
+                                    </p>
+                                </div>
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <a class="button is-static">
+                                            ≤
+                                        </a>
+                                    </div>
+                                    <p class="control">
+                                        <input class="input" type="text" name="objects_ub"
+                                            placeholder="Default 32767">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label">Satisfying</label>
+                            </div>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control">
+                                        <select multiple name="satisfying" type="tags" placeholder="Type to find a proposition">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label">Not Satisfying</label>
+                            </div>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control">
+                                        <select multiple name="not_satisfying" type="tags" placeholder="Type to find a proposition">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label"></div>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control">
+                                        <input type="submit" value="Submit" class="button is-link"></input>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="column" id="results">
+                <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
             </div>
         </div>
-        <section class="section">
-            <p class="block">
-                For now, unfortunately, you'll need to know the names of each proposition you want to
-                reference. This will be improved in a future update! See <a href="/props">here</a> for a list of all supported propositions.
-            </p>
-            <div class="columns">
-                <div class="column">
-                    <div class="notification is-primary is-light">
-                        <form hx-get="/query_listing" hx-target="#results" hx-indicator="#results" autocomplete="off">
-                            <div class="field is-horizontal">
-                                <div class="field-label is-normal">
-                                    <label class="label">Morphisms</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field has-addons">
-                                        <div class="control">
-                                            <a class="button is-static">
-                                                ≥
-                                            </a>
-                                        </div>
-                                        <p class="control">
-                                            <input class="input" type="text" name="morphisms_lb"
-                                                placeholder="Default 0">
-                                        </p>
-                                    </div>
-                                    <div class="field has-addons">
-                                        <div class="control">
-                                            <a class="button is-static">
-                                                ≤
-                                            </a>
-                                        </div>
-                                        <p class="control">
-                                            <input class="input" type="text" name="morphisms_ub"
-                                                placeholder="Default 32767">
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field is-horizontal">
-                                <div class="field-label is-normal">
-                                    <label class="label">Objects</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field has-addons">
-                                        <div class="control">
-                                            <a class="button is-static">
-                                                ≥
-                                            </a>
-                                        </div>
-                                        <p class="control">
-                                            <input class="input" type="text" name="objects_lb" placeholder="Default 0">
-                                        </p>
-                                    </div>
-                                    <div class="field has-addons">
-                                        <div class="control">
-                                            <a class="button is-static">
-                                                ≤
-                                            </a>
-                                        </div>
-                                        <p class="control">
-                                            <input class="input" type="text" name="objects_ub"
-                                                placeholder="Default 32767">
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field is-horizontal">
-                                <div class="field-label is-normal">
-                                    <label class="label">Satisfying</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="control">
-                                            <input class="input" type="text" name="satisfying"
-                                                placeholder="Comma separated, e.g. is_discrete,has_initial_object">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field is-horizontal">
-                                <div class="field-label is-normal">
-                                    <label class="label">Not Satisfying</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="control">
-                                            <input class="input" type="text" name="not_satisfying"
-                                                placeholder="Comma separated, e.g. has_terminal_object,is_groupoid">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field is-horizontal">
-                                <div class="field-label"></div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="control">
-                                            <input type="submit" value="Submit" class="button is-link"></input>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="column" id="results">
-                    <span class="icon htmx-indicator"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
-                </div>
-            </div>
-        </section>
-        <section class="section">
+    </section>
+    <section class="section">
 
-        </section>
+    </section>
+    <script>
+        (function () {
+            BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"], select[data-type="tags"], select[type="tags"]', {
+                itemText: "name",
+                itemValue: "id",
+                source: async function (value) {
+                    return await fetch('/props_search/' + value).then(res => res.json());
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>
