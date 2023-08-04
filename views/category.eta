@@ -28,16 +28,18 @@
                     </h4>
                     <table class="table is-striped">
                         <tr>
-                            <th>ID</th>
+                            <th>Web ID</th>
                             <td>
                                 <%= it.id %>
                             </td>
                             </td>
+                        </tr>
                         <tr>
                             <th>Morphisms</th>
                             <td>
                                 <%= it.morphisms %>
                             </td>
+                        </tr>
                         <tr>
                             <th>Objects</th>
                             <td>

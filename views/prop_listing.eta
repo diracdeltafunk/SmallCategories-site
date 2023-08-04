@@ -19,21 +19,21 @@
 <table class="table is-fullwidth">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Name</th>
+            <th><span class="icon-text"><span>Name</span><span class="icon"><i class="fa-solid fa-link"></i></span></span></th>
             <th>Description</th>
         </tr>
     </thead>
     <tbody>
     <% it.data.forEach(function(row) { %>
         <tr>
-            <td><%= row.id.slice(0, 7) %>...</td>
             <td>
+                <a href="/proposition/<%= row.id %>">
                 <% if (row.name == null) { %>
                     <span class="has-text-grey">N/A</span>
                 <% } else { %>
                     <%= row.name %>
                 <% } %>
+                </a>
             </td>
             <td>
                 <% if (row.description == null) { %>

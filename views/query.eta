@@ -12,18 +12,17 @@
     <div class="hero is-primary">
         <div class="hero-body">
             <h1 class="title">
-                <span class="icon">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    &nbsp;
+                    <span>Query</span>
                 </span>
-                Query
             </h1>
         </div>
     </div>
     <section class="section">
-        <p class="block">
-            For now, unfortunately, you'll need to know the names of each proposition you want to
-            reference. This will be improved in a future update! See <a href="/props">here</a> for a list of all supported propositions.
-        </p>
         <div class="columns">
             <div class="column">
                 <div class="notification is-primary is-light">

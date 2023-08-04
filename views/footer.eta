@@ -3,11 +3,11 @@
         <p>
             By <a href="https://benspitz.com">Ben Spitz</a>
             <br>
-            <a href="https://github.com/diracdeltafunk/SmallCategories-site"><span class="icon"><i
-                        class="fa-brands fa-github"></i></span> Source</a>
+            <a href="https://github.com/diracdeltafunk/SmallCategories-site"><span class="icon-text"><span class="icon"><i
+                        class="fa-brands fa-github"></i></span> <span>Source</span></a>
             <br>
-            <a href="https://ko-fi.com/diracdeltafunk">Support <span class="icon"><i
-                        class="fa-solid fa-mug-saucer"></i></span></a>
+            <a href="https://ko-fi.com/diracdeltafunk"><span class="icon-text"><span>Support</span> <span class="icon"><i
+                        class="fa-solid fa-mug-saucer"></i></span></span></a>
         </p>
     </div>
 </footer>

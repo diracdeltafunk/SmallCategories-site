@@ -35,8 +35,8 @@ app.get('/', (req, res) => {
   res.send(eta.render("./index"))
 })
 
-app.get('/browse', (req, res) => {
-  res.send(eta.render("./browse"))
+app.get('/cats', (req, res) => {
+  res.send(eta.render("./cats"))
 })
 
 app.get('/morphisms_nav_list', async (req, res) => {
@@ -68,7 +68,7 @@ app.get('/browse_listing', async (req, res) => {
   const objects = parseInt(req.query.objects)
   const { data, error, count } = await supabase
     .from('Categories')
-    .select('id,index,friendly_name', { count: 'exact' })
+    .select('*', { count: 'exact' })
     .eq('morphisms', morphisms)
     .eq('objects', objects)
     .order('index', { ascending: true })
@@ -122,9 +122,6 @@ app.get('/query_listing', async (req, res) => {
   const objects_ub = req.query.objects_ub ? parseInt(req.query.objects_ub) : 32767
   const true_prop_ids = req.query.satisfying ? [].concat(req.query.satisfying) : []
   const false_prop_ids = req.query.not_satisfying ? [].concat(req.query.not_satisfying) : []
-  console.log(req.query.satisfying, req.query.not_satisfying)
-  console.log(true_prop_ids, false_prop_ids)
-
   const { data, error, status, count } = await supabase
     .rpc('query_listing', {
       morphisms_lb: morphisms_lb,
@@ -173,6 +170,22 @@ app.get('/category/:id', async (req, res) => {
   }
   else {
     res.send("Database Error: There is not a unique category with this id!")
+  }
+})
+
+app.get('/proposition/:id', async (req, res) => {
+  let { data, error } = await supabase
+    .from('Propositions')
+    .select('*')
+    .eq('id', req.params.id)
+  if (error) {
+    console.error(error)
+  }
+  if (data.length == 1) {
+    res.send(eta.render("./proposition", data[0]))
+  }
+  else {
+    res.send("Database Error: There is not a unique proposition with this id!")
   }
 })
 

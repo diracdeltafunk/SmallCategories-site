@@ -10,11 +10,13 @@
         <div class="hero is-dark">
             <div class="hero-body">
                 <h1 class="title">
-                    <span class="icon">
-                        <i class="fa-solid fa-mug-saucer"></i>
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-mug-saucer"></i>
+                        </span>
+                        &nbsp;
+                        <span>Support</span>
                     </span>
-                    &nbsp;
-                    Support
                 </h1>
             </div>
         </div>

@@ -10,10 +10,13 @@
         <div class="hero is-link">
             <div class="hero-body">
                 <h1 class="title">
-                    <span class="icon">
-                        <i class="fa-solid fa-list"></i>
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-list"></i>
+                        </span>
+                        &nbsp;
+                        <span>Browse Categories</span>
                     </span>
-                    Browse
                 </h1>
             </div>
         </div>

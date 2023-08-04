@@ -2,15 +2,14 @@
 <table class="table is-fullwidth">
     <thead>
         <tr>
-            <th>Index</th>
+            <th><span class="icon-text"><span>ID</span><span class="icon"><i class="fa-solid fa-link"></i></span></th>
             <th>Name</th>
-            <th>ID <i class="fa-solid fa-link"></i></th>
         </tr>
     </thead>
     <tbody>
     <% it.data.forEach(function(row) { %>
         <tr>
-            <th><%= row.index %></th>
+            <td><a href="/category/<%= row.id %>">SmallCat(<%= row.morphisms %>,<%= row.objects %>,<%= row.index %>)</a></td>
             <td>
                 <% if (row.friendly_name == null) { %>
                     <span class="has-text-grey">N/A</span>
@@ -18,7 +17,6 @@
                     <%= row.friendly_name %>
                 <% } %>
             </td>
-            <td><a href="/category/<%= row.id %>"><%= row.id.slice(0, 7) %></a></td>
         </tr>
     <% }) %>
     </tbody>

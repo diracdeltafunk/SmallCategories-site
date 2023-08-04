@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+
+        <div class="hero is-success">
+            <div class="hero-body">
+                <h1 class="title">
+                    <span class="icon">
+                        <i class="fa-solid fa-paw"></i>
+                    </span>
+                    &nbsp;
+                    Proposition <%= it.name %>
+                </h1>
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="columns">
+                <div class="column">
+                    <h4 class="title is-4">
+                        Quick Reference
+                    </h4>
+                    <table class="table">
+                        <tr>
+                            <th>Web ID</th>
+                            <td>
+                                <%= it.id %>
+                            </td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>
+                                <%= it.description %>
+                            </td>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+</body>
+
+</html>

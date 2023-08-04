@@ -36,7 +36,7 @@
                 </div>
                 <div class="level">
                     <p class="buttons">
-                        <a class="button is-link is-light is-outlined" href="/browse">
+                        <a class="button is-link is-light is-outlined" href="/cats">
                             <span class="icon">
                                 <i class="fa-solid fa-list"></i>
                             </span>

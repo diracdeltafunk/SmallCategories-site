@@ -10,10 +10,13 @@
         <div class="hero is-success">
             <div class="hero-body">
                 <h1 class="title">
-                    <span class="icon">
-                        <i class="fa-solid fa-chart-simple"></i>
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-chart-simple"></i>
+                        </span>
+                        &nbsp;
+                        <span>Statistics</span>
                     </span>
-                    Statistics
                 </h1>
             </div>
         </div>

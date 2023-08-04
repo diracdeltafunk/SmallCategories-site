@@ -10,10 +10,13 @@
         <div class="hero is-link">
             <div class="hero-body">
                 <h1 class="title">
-                    <span class="icon">
-                        <i class="fa-solid fa-toggle-on"></i>
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-toggle-on"></i>
+                        </span>
+                        &nbsp;
+                        <span>Browse Propositions</span>
                     </span>
-                    Propositions
                 </h1>
             </div>
         </div>
