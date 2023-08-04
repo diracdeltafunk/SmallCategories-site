@@ -23,6 +23,9 @@
         </div>
     </div>
     <section class="section">
+        <p class="block">
+            Unfortunately this page is currently broken on mobile. 😿
+        </p>
         <div class="columns">
             <div class="column">
                 <div class="notification is-primary is-light">
