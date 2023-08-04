@@ -1,4 +1,5 @@
 import os
+import sys
 
 import psycopg
 from psycopg.rows import dict_row
@@ -192,7 +193,9 @@ with psycopg.connect(
     print("Connection successful!")
     with conn.cursor(row_factory=dict_row) as cur:
         numcats = cur.execute('SELECT COUNT(*) FROM "Categories";').fetchone()["count"]
-        batches = numcats // BATCH_SIZE
+        start_batch = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+        assert start_batch >= 0
+        batches = (numcats // BATCH_SIZE) - start_batch
         print(
             "There are {} categories. Using batch size {}.".format(numcats, BATCH_SIZE)
         )
@@ -202,7 +205,7 @@ with psycopg.connect(
             for i in tqdm(range(batches)):
                 batch = cur.execute(
                     'SELECT * FROM "Categories" LIMIT {} OFFSET {};'.format(
-                        BATCH_SIZE, i * BATCH_SIZE
+                        BATCH_SIZE, (i + start_batch) * BATCH_SIZE
                     )
                 ).fetchall()
                 for row in tqdm(batch, leave=False):
