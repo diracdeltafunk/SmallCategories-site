@@ -19,5 +19,7 @@ input:placeholder-shown {
 <script src="https://unpkg.com/htmx.org@1.9.3"
     integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
     crossorigin="anonymous"></script>
+<!-- umami analytics -->
+<script async src="https://analytics.umami.is/script.js" data-website-id="1d8f8bac-2d47-4c2e-aada-4784aa5919b9"></script>
 <!-- title -->
 <title>SmallCats</title>
