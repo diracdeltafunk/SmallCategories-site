@@ -36,11 +36,11 @@
                 </div>
                 <div class="level">
                     <p class="buttons">
-                        <a class="button is-link is-light is-outlined" href="/cats">
+                        <a class="button is-link is-light is-outlined" href="/random">
                             <span class="icon">
-                                <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-shuffle"></i>
                             </span>
-                            <span>Browse</span>
+                            <span>Random</span>
                         </a>
                         <a class="button is-primary is-light is-outlined" href="/query">
                             <span class="icon">

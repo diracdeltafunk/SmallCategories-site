@@ -167,16 +167,36 @@ app.get('/support', (req, res) => {
   res.send(eta.render("./support"))
 })
 
-app.get('/category/:id', async (req, res) => {
-  let { data, error } = await supabase
-    .from('Categories')
-    .select('*')
-    .eq('id', req.params.id)
+app.get('/random', async (req, res) => {
+  const { data, error } = await supabase
+    .rpc('random_cat_id')
   if (error) {
     console.error(error)
   }
-  if (data.length == 1) {
-    res.send(eta.render("./category", data[0]))
+  if (data.length < 1) {
+    res.send("Database Error: There are no categories!")
+    return
+  }
+  res.redirect('/category/' + data)
+})
+
+app.get('/category/:id', async (req, res) => {
+  const { data: cdata, error: cerror } = await supabase
+    .from('Categories')
+    .select('*')
+    .eq('id', req.params.id)
+  if (cerror) {
+    console.error(cerror)
+  }
+  if (cdata.length == 1) {
+    const { data: pdata, error: perror } = await supabase
+      .from('named_kb')
+      .select('prop, prop_id, value')
+      .eq('cat', req.params.id)
+    if (perror) {
+      console.error(perror)
+    }
+    res.send(eta.render("./category", { cat: cdata[0], props: pdata }))
   }
   else {
     res.send("Database Error: There is not a unique category with this id!")
