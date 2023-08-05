@@ -15,7 +15,7 @@
                     <i class="fa-solid fa-paw"></i>
                 </span>
                 &nbsp;
-                SmallCat(<%= it.morphisms %>,<%= it.objects %>,<%= it.index %>)
+                SmallCat(<%= it.cat.morphisms %>,<%= it.cat.objects %>,<%= it.cat.index %>)
             </h1>
         </div>
     </div>
@@ -30,33 +30,33 @@
                     <tr>
                         <th>Web ID</th>
                         <td>
-                            <%= it.id %>
+                            <%= it.cat.id %>
                         </td>
                         </td>
                     </tr>
                     <tr>
                         <th>Morphisms</th>
                         <td>
-                            <%= it.morphisms %>
+                            <%= it.cat.morphisms %>
                         </td>
                     </tr>
                     <tr>
                         <th>Objects</th>
                         <td>
-                            <%= it.objects %>
+                            <%= it.cat.objects %>
                         </td>
                     </tr>
                     <tr>
                         <th>Index</th>
                         <td>
-                            <%= it.index %>
+                            <%= it.cat.index %>
                         </td>
                     </tr>
                     <tr>
                         <th>Name</th>
                         <td>
-                            <% if (it.friendly_name !==null ) { %>
-                                <%= it.friendly_name %>
+                            <% if (it.cat.friendly_name !==null ) { %>
+                                <%= it.cat.friendly_name %>
                             <% } else {%>
                                 <span class="has-text-grey-light">N/A</span>
                             <% } %>
@@ -65,8 +65,8 @@
                     <tr>
                         <th>Description</th>
                         <td>
-                            <% if (it.description !==null ) { %>
-                                <%= it.description %>
+                            <% if (it.cat.description !==null ) { %>
+                                <%= it.cat.description %>
                             <% } else {%>
                                 <span class="has-text-grey-light">N/A</span>
                             <% } %>
@@ -74,7 +74,7 @@
                     </tr>
                 </table>
             </div>
-            <% if (it.morphisms > 0) { %>
+            <% if (it.cat.morphisms > 0) { %>
             <div class="column">
                 <h4 class="title is-4">
                     Visualization
@@ -83,11 +83,11 @@
                 This feature is still janky! Please excuse the mess.
                 </p>
                 <div class="box">
-                    <%~ include("./viz", { objects: it.objects, morphisms: it.morphisms, table: it.table }) %>
+                    <%~ include("./viz", { objects: it.cat.objects, morphisms: it.cat.morphisms, table: it.cat.table }) %>
                 </div>
                 <p class="help">
-                    <% if (it.objects > 1) {%>
-                        Morphisms 0 through <%= it.objects - 1 %> are identities, shown as objects in this visualization.
+                    <% if (it.cat.objects > 1) {%>
+                        Morphisms 0 through <%= it.cat.objects - 1 %> are identities, shown as objects in this visualization.
                     <%} else {%>
                         Morphism 0 is an identity, shown as an object in this visualization.
                     <%}%>
@@ -96,7 +96,7 @@
             <% } %>
         </div>
     </section>
-    <% if (it.morphisms > 0) { %>
+    <% if (it.cat.morphisms > 0) { %>
     <section class="section">
         <div class="columns">
             <div class="column">
@@ -107,20 +107,20 @@
                     <tbody>
                         <tr>
                             <td><i>row</i> ∘ <i>col</i></td>
-                            <% for (let i=0; i < it.morphisms; i++) { %>
+                            <% for (let i=0; i < it.cat.morphisms; i++) { %>
                                 <th>
                                     <%= i %>
                                 </th>
                             <% } %>
                         </tr>
-                        <% it.table.forEach(function(row, j){ %>
+                        <% it.cat.table.forEach(function(row, j){ %>
                             <tr>
                                 <th>
                                     <%= j %>
                                 </th>
                                 <% row.forEach(function(cell){ %>
                                     <td>
-                                        <% if (cell < it.morphisms) { %>
+                                        <% if (cell < it.cat.morphisms) { %>
                                             <%= cell %>
                                         <% } else { %>
                                             <span class="has-text-grey-light">/</span>
@@ -132,16 +132,28 @@
                     </tbody>
                 </table>
                 <p class="help">
-                    <% if (it.objects > 1) {%>
-                        Morphisms 0 through <%= it.objects - 1 %> are identities.
+                    <% if (it.cat.objects > 1) {%>
+                        Morphisms 0 through <%= it.cat.objects - 1 %> are identities.
                     <%} else {%>
                         Morphism 0 is an identity.
                     <%}%>
-                    <% if (it.table.some(r => r.some(e => e == it.morphisms))) { %>
+                    <% if (it.cat.table.some(r => r.some(e => e == it.cat.morphisms))) { %>
                     <br>
                     "<span class="has-text-grey-light">/</span>" indicates that the composition is not defined.
                     <% } %>
                 </p>
+            </div>
+            <div class="column">
+                <h4 class="title is-4">
+                    Facts
+                </h4>
+                <div class="tags">
+                <% it.props.forEach(function (p) { %>
+                    <a class="tag <%= p.value ? "is-success" : "is-danger" %>" href="/proposition/<%= p.prop_id %>">
+                        <span class="icon-text"><span class="icon"><i class="fa-solid <%= p.value ? "fa-check" : "fa-xmark" %>"></i></span><span><%= p.prop %></span></span>
+                    </a>
+                <% }); %>
+                </div>
             </div>
         </div>
     </section>
