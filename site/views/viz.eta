@@ -1,4 +1,5 @@
 <div id="viz"></div>
+<script src="https://unpkg.com/d3-force-boundary@0.0.1/dist/d3-force-boundary.min.js"></script>
 <script type="module">
 
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
@@ -89,6 +90,7 @@
         //.force("y", d3.forceY(height / 2).strength(0.02))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collide", d3.forceCollide(15))
+        .force("boundary", forceBoundary(15, 15, width - 15, height - 15))
         .on("tick", ticked);
 
     const svg = d3.create("svg")
