@@ -28,9 +28,15 @@
                 </p>
                 <h2>Keep the Site Running</h2>
                 <p>
-                    Currently, this website runs on render.com's free tier. As a result, the service is a bit slow
-                    (especially after a long period of inactivity), and potentially unreliable. By donating to
-                    SmallCategories, you can help fund a better hosting solution.
+                    It costs a small amount of money each year to keep this domain registered, which I pay for out of pocket. Besides this, the site runs on the generosity of various web startups.
+                    <ul>
+                    <li>
+                    The web server runs on <a href="https://render.com">render.com</a>'s free tier. As a result, the web server spins down every time there is a short period of inactivity, and so the site is very slow to load if you're the first person to access it within a few minutes.</li>
+                    <li>
+                    The postgres database that this site relies on is hosted on <a href="https://supabase.com">supabase.com</a>'s free tier, which limits the database size to 512MB. This limit has almost been reached!
+                    </li>
+                    </ul>
+                    By donating to SmallCategories, you can help fund a better hosting solution.
                 </p>
                 <h2>Improve the Database</h2>
                 <p>

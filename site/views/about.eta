@@ -26,12 +26,16 @@
                 categories which is useful and useable.
             </div>
             <div class="block">
-                The database itself is produced by running the <a href="https://github.com/minion/minion"><span class="icon-text"><span>Minion</span><span
+                The list of categories itself is produced by running the <a href="https://github.com/minion/minion"><span class="icon-text"><span>Minion</span><span
                         class="icon"><i class="fa-brands fa-github"></i></span></span></a> constraint solver to enumerate all
                 category structures on a given
                 finite set, then eliminating isomorphic copies by brute force. You can find the source code for all of
                 that <a href="https://github.com/diracdeltafunk/SmallCategories"><span class="icon-text"><span>here</span><span
                         class="icon"><i class="fa-brands fa-github"></i></span></span></a>.
+            </div>
+            <div class="block">
+                This website uses a postgres database to store the list of categories and selected propositions about them. The values of the propositions are computed using <a href="https://github.com/diracdeltafunk/pycatlib"><span class="icon-text"><span>pycatlib</span><span
+                        class="icon"><i class="fa-brands fa-github"></i></span></span></a>, a tiny python library I wrote for this purpose.
             </div>
             <div class="block">
                 You can find the source code for this website <a
