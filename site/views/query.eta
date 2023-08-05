@@ -1,3 +1,4 @@
+<% const mobile = it && ('mobile_hotfix' in it) && it.mobile_hotfix; %>
 <!DOCTYPE html>
 <html>
 
@@ -23,9 +24,23 @@
         </div>
     </div>
     <section class="section">
-        <p class="block">
-            Unfortunately this page is currently broken on mobile. 😿
-        </p>
+        <div class="notification is-light">
+            <% if (mobile) { %>
+            <p class="block">
+            You are viewing a temporary workaround for the query page on mobile. If you are on desktop, you can use the <a href="/query">normal query page</a>.
+            </p>
+            <% } else { %>
+            <p class="block">
+            Unfortunately this page is currently broken on most mobile browsers 😿 — the proposition search boxes are not working due to a known bug.
+            </p>
+            <a class="button" href="/query_mobile">
+                <span class="icon">
+                <i class="fa-solid fa-arrow-right"></i>
+                </span>
+                <span>Temporary mobile workaround</span>
+            </a>
+            <% } %>
+        </div>
         <div class="columns">
             <div class="column">
                 <div class="notification is-primary is-light">
@@ -94,8 +109,15 @@
                             <div class="field-body">
                                 <div class="field">
                                     <div class="control">
+                                        <% if (mobile) { it.propositions.forEach(function (p) { %>
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="satisfying" value="<%= p.id %>">
+                                            <%= p.name %>
+                                        </label>
+                                        <% }); } else { %>
                                         <select multiple name="satisfying" type="tags" placeholder="Type to find a proposition">
                                         </select>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>
@@ -107,8 +129,15 @@
                             <div class="field-body">
                                 <div class="field">
                                     <div class="control">
+                                        <% if (mobile) { it.propositions.forEach(function (p) { %>
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="not_satisfying" value="<%= p.id %>">
+                                            <%= p.name %>
+                                        </label>
+                                        <% }); } else { %>
                                         <select multiple name="not_satisfying" type="tags" placeholder="Type to find a proposition">
                                         </select>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>
@@ -131,9 +160,7 @@
             </div>
         </div>
     </section>
-    <section class="section">
-
-    </section>
+    <% if (!mobile) { %>
     <script>
         (function () {
             BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"], select[data-type="tags"], select[type="tags"]', {
@@ -145,6 +172,7 @@
             });
         })();
     </script>
+    <% } %>
 </body>
 
 </html>

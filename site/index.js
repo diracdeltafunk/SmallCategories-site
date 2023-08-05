@@ -115,6 +115,16 @@ app.get('/query', (req, res) => {
   res.send(eta.render("./query"))
 })
 
+app.get('/query_mobile', async (req, res) => {
+  const { data, error } = await supabase
+    .from('Propositions')
+    .select('id, name')
+  if (error) {
+    console.error(error)
+  }
+  res.send(eta.render("./query", { mobile_hotfix: true, propositions: data }))
+})
+
 app.get('/query_listing', async (req, res) => {
   const morphisms_lb = req.query.morphisms_lb ? parseInt(req.query.morphisms_lb) : 0
   const morphisms_ub = req.query.morphisms_ub ? parseInt(req.query.morphisms_ub) : 32767
