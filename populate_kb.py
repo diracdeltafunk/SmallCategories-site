@@ -184,7 +184,7 @@ def ensure_impl(cur: psycopg.Cursor, cat_id: str, impl: dict[str, list[str]]):
     return
 
 
-TABLE = sys.argv[2] if len(sys.argv > 2) else "Categories"
+TABLE = sys.argv[2] if len(sys.argv) > 2 else "Categories"
 
 with psycopg.connect(
     "user=postgres password={} host=db.znxyuwheorjbdymlnrxe.supabase.co port=5432 dbname=postgres".format(
