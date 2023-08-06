@@ -159,6 +159,16 @@ app.get('/stats', (req, res) => {
   res.send(eta.render("./stats"))
 })
 
+app.get('/stats_table', async (req, res) => {
+  const { data, error } = await supabase
+    .from('stats_table')
+    .select('*')
+  if (error) {
+    console.error(error)
+  }
+  res.send(eta.render("./stats_table", data))
+})
+
 app.get('/about', (req, res) => {
   res.send(eta.render("./about"))
 })

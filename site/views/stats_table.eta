@@ -1,0 +1,51 @@
+<%
+    const height = Math.max(...it.map(x => x.morphisms));
+    const width = Math.max(...it.map(x => x.objects));
+    let table = new Array(height + 1);
+    for (let j = 0; j <= height; j++) {
+        table[j] = new Array(width + 1);
+        for (let i = 0; i <= width; i++) {
+            table[j][i] = '';
+        }
+    }
+    it.forEach(x => {
+        table[x.morphisms][x.objects] = x.count;
+    });
+%>
+<table class="table is-bordered">
+    <thead>
+        <tr>
+            <th>
+                Objects →
+                <br>
+                Morphisms ↓
+            </th>
+            <% for (let i = 0; i <= width; i++) { %>
+            <th><%= i %></th>
+            <% } %>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+    <% for (let j = 0; j <= height; j++) { %>
+        <tr>
+            <th><%= j %></th>
+            <% for (let i = 0; i <= width; i++) { %>
+            <td<% if (2*j<=3*i) { %> class="has-text-success"<% } %>><%= table[j][i] %></td>
+            <% } %>
+            <th><%= table[j].reduce((a,b) => (parseInt(a)||0)+(parseInt(b)||0), 0) %></th>
+        </tr>
+    <% } %>
+        <tr>
+            <th>Total</th>
+            <% for (let i = 0; i <= width; i++) { %>
+            <th>
+                <%= table.map(x => x[i]).reduce((a,b) => (parseInt(a)||0)+(parseInt(b)||0), 0) %>
+            </th>
+            <% } %>
+            <th>
+                <%= table.flat().reduce((a,b) => (parseInt(a)||0)+(parseInt(b)||0), 0) %>
+            </th>
+        </tr>
+    </tbody>
+</table>

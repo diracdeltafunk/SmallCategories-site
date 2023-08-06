@@ -3,6 +3,11 @@
 
 <head>
     <%~ include("./common_head") %>
+    <style>
+        p.help {
+            text-wrap: wrap;
+        }
+    </style>
 </head>
 
 <body>
@@ -28,7 +33,6 @@
                         <p class="title" hx-get="/count_cats" hx-trigger="load"><span class="icon"><i
                                     class="fa-solid fa-ellipsis fa-fade"></i></span></p>
                     </div>
-
                 </div>
                 <div class="level-item has-text-centered">
                     <div>
@@ -44,6 +48,24 @@
                                     class="fa-solid fa-ellipsis fa-fade"></i></span></p>
                     </div>
                 </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <div class="table-container" hx-get="/stats_table" hx-trigger="load">
+                    <span class="icon"><i class="fa-solid fa-ellipsis fa-fade"></i></span>
+                </div>
+                <p class="help">
+                    This table shows the number of categories available on smallcats.info with a given number of objects and morphisms.
+                    <br>
+                    Each nonempty cell in the table is guaranteed to be "correct", i.e. the database contains a complete list of isomorphism classes of categories with the respective numbers of objects and morphisms.
+                    <br>
+                    Note that there are no categories with fewer morphisms than objects, or with zero objects and more than zero morphisms, so these cells are blank.
+                    <br>
+                    Other blank cells indicate that smallcats.info does not yet contain any categories with the respective numbers of objects and morphisms, even though such categories exist! You can help extend the database by <a href="/support">supporting</a> smallcats.info.
+                    <br>
+                    Colored cells indicate a stable value; see <a href="https://oeis.org/A125701">A125701</a>.
+                </p>
             </div>
         </section>
 </body>
