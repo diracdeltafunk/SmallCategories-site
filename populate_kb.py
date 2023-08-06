@@ -4,6 +4,8 @@ import sys
 import psycopg
 from psycopg.rows import dict_row
 
+from math import ceil
+
 from tqdm import tqdm
 
 from pycatlib.category import *
@@ -199,7 +201,7 @@ with psycopg.connect(
         ]
         start_batch = int(sys.argv[1]) if len(sys.argv) > 1 else 0
         assert start_batch >= 0
-        batches = (numcats // BATCH_SIZE) - start_batch
+        batches = ceil(numcats / BATCH_SIZE) - start_batch
         print(
             "There are {} categories to investigate. Using batch size {}.".format(
                 numcats, BATCH_SIZE
