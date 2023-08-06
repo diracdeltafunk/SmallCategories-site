@@ -184,6 +184,8 @@ def ensure_impl(cur: psycopg.Cursor, cat_id: str, impl: dict[str, list[str]]):
     return
 
 
+TABLE = sys.argv[2] if len(sys.argv > 2) else "Categories"
+
 with psycopg.connect(
     "user=postgres password={} host=db.znxyuwheorjbdymlnrxe.supabase.co port=5432 dbname=postgres".format(
         os.environ.get("SUPABASE_PW")
@@ -192,20 +194,24 @@ with psycopg.connect(
     conn.autocommit = True
     print("Connection successful!")
     with conn.cursor(row_factory=dict_row) as cur:
-        numcats = cur.execute('SELECT COUNT(*) FROM "Categories";').fetchone()["count"]
+        numcats = cur.execute('SELECT COUNT(*) FROM "{}";'.format(TABLE)).fetchone()[
+            "count"
+        ]
         start_batch = int(sys.argv[1]) if len(sys.argv) > 1 else 0
         assert start_batch >= 0
         batches = (numcats // BATCH_SIZE) - start_batch
         print(
-            "There are {} categories. Using batch size {}.".format(numcats, BATCH_SIZE)
+            "There are {} categories to investigate. Using batch size {}.".format(
+                numcats, BATCH_SIZE
+            )
         )
         with tqdm(
             desc="Entries updated", unit="", bar_format="{desc}: {n}", leave=False
         ) as counter:
             for i in tqdm(range(batches)):
                 batch = cur.execute(
-                    'SELECT * FROM "Categories" LIMIT {} OFFSET {};'.format(
-                        BATCH_SIZE, (i + start_batch) * BATCH_SIZE
+                    'SELECT * FROM "{}" LIMIT {} OFFSET {};'.format(
+                        TABLE, BATCH_SIZE, (i + start_batch) * BATCH_SIZE
                     )
                 ).fetchall()
                 for row in tqdm(batch, leave=False):
