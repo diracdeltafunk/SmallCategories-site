@@ -263,7 +263,7 @@ app.get('/count_rels', async (req, res) => {
 
 app.get('/smolcats', async (req, res) => {
   const response = await fetch('https://api.thecatapi.com/v1/images/search',
-    { headers: { 'x-api-key': 'live_xR5d8KNnBBDR6fOQCIwhoK5cDBajMg7UNAgmCHgL6SnP0FJBcPmtNkmmYNgxHpmm' } }
+    { headers: { 'x-api-key': process.env.CAT_API_KEY } }
   )
   res.send(eta.render("./smolcats", { ok: response.ok, data: await response.json() }))
 })
