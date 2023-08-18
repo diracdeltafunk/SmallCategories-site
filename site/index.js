@@ -1,5 +1,7 @@
 import 'dotenv/config'
 
+import fetch from 'node-fetch'
+
 if (process.env.NODE_ENV === 'production') {
   console.log("Running in production mode")
 }
@@ -257,6 +259,13 @@ app.get('/count_rels', async (req, res) => {
     console.error(error)
   }
   res.send(count.toString())
+})
+
+app.get('/smolcats', async (req, res) => {
+  const response = await fetch('https://api.thecatapi.com/v1/images/search',
+    { headers: { 'x-api-key': 'live_xR5d8KNnBBDR6fOQCIwhoK5cDBajMg7UNAgmCHgL6SnP0FJBcPmtNkmmYNgxHpmm' } }
+  )
+  res.send(eta.render("./smolcats", { ok: response.ok, data: await response.json() }))
 })
 
 // Return 200 OK on /health

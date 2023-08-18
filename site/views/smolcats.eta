@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%~ include("./common_head") %>
+</head>
+
+<body>
+    <%~ include("./navbar") %>
+
+    <div class="hero is-info">
+        <div class="hero-body">
+            <h1 class="title">
+                <span class="icon">
+                    <i class="fa-solid fa-paw"></i>
+                </span>
+                &nbsp;
+                Small Cat
+            </h1>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="container">
+            <% if (it.ok) { %>
+            <img width="100" src="<%= it.data[0].url %>">
+            <p class="help">Small cats provided by <a href="https://thecatapi.com">The Cat API</a>.</p>
+            <% } else { %>
+            <p>Sorry, couldn't fetch a cat 😿. Maybe the API usage limit has been exceeded?</p>
+            <% } %>
+        </div>
+    </section>
+</body>
+
+</html>
