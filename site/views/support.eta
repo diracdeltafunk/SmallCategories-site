@@ -33,7 +33,7 @@
                     <li>
                     The web server runs on <a href="https://render.com">render.com</a>'s free tier. As a result, the web server spins down every time there is a short period of inactivity, and so the site is very slow to load if you're the first person to access it within a few minutes.</li>
                     <li>
-                    The postgres database that this site relies on is hosted on <a href="https://supabase.com">supabase.com</a>'s free tier, which limits the database size to 512MB. This limit has almost been reached!
+                    The postgres database that this site relies on is hosted on <a href="https://supabase.com">supabase.com</a>'s free tier, which limits the database size to 512MB. <strong>This limit has been reached, meaning that this postgres database can no longer be updated.</strong>
                     </li>
                     </ul>
                     By donating to SmallCategories, you can help fund a better hosting solution.
