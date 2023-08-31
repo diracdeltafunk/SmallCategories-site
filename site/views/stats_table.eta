@@ -31,7 +31,7 @@
         <tr>
             <th><%= j %></th>
             <% for (let i = 0; i <= width; i++) { %>
-            <td<% if (2*j<=3*i) { %> class="has-text-success"<% } %>><%= table[j][i] %></td>
+            <td<% if (2*j<=3*i) { %> class="has-text-success"<% } %><% if (j<i || (i==0 && j>0)) { %> style="background-color:#eee;"<% } %>><%= table[j][i] %></td>
             <% } %>
             <th><%= table[j].reduce((a,b) => (parseInt(a)||0)+(parseInt(b)||0), 0) %></th>
         </tr>
