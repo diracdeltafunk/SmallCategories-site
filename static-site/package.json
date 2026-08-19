@@ -18,6 +18,7 @@
     "d3-drag": "3.0.0",
     "d3-force": "3.0.0",
     "d3-selection": "3.0.0",
-    "esbuild": "0.25.9"
+    "esbuild": "0.25.9",
+    "katex": "0.18.4"
   }
 }

@@ -2,6 +2,7 @@
 @import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 @import "@fortawesome/fontawesome-free/css/solid.min.css";
 @import "@fortawesome/fontawesome-free/css/brands.min.css";
+@import "katex/dist/katex.min.css";
 
 :root {
   color-scheme: light;
@@ -110,16 +111,23 @@ fieldset {
 .methodology-callout > .icon { flex: none; }
 .methodology-callout p:not(:last-child) { margin-bottom: 0.6rem; }
 .methodology-content { max-width: 75rem; }
+.hero .title > .icon-text { flex-wrap: nowrap; }
+.hero .title > .icon-text > .icon { flex: none; }
+.methodology-content h2 > .icon-text { align-items: flex-start; flex-wrap: nowrap; }
+.methodology-content h2 > .icon-text > .icon { flex: none; margin-top: 0.15em; }
+.hero .title > .icon-text > span:last-child,
+.methodology-content h2 > .icon-text > span:last-child { min-width: 0; }
 .methodology-content h2:not(:first-child) { margin-top: 2rem; }
 .methodology-formula {
   overflow-x: auto;
   padding: 0.9rem 1rem;
   border-left: 4px solid #3e8ed0;
   background: #f5f9fc;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 1rem;
-  white-space: nowrap;
+  text-align: center;
 }
+.methodology-formula .katex-display { margin: 0; }
+.methodology-content .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.15rem 0; }
 .methodology-table td, .methodology-table th { font-variant-numeric: tabular-nums; }
 .methodology-table th:not(:first-child), .methodology-table td:not(:first-child) { text-align: right; }
 .methodology-links { margin-top: 2rem; }
