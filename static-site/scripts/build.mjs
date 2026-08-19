@@ -26,18 +26,18 @@ const SHARD_SIZE = 512
 const DATA_VERSION = 'v3'
 
 function parseArgs(argv) {
-  const result = { databaseDir: DEFAULT_DATABASE_DIR, exportDir: null }
+  const result = { databaseDir: DEFAULT_DATABASE_DIR, websiteDataDir: null }
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--database' && argv[i + 1]) {
       result.databaseDir = resolve(argv[++i])
       continue
     }
-    if (argv[i] === '--export' && argv[i + 1]) {
-      result.exportDir = resolve(argv[++i])
+    if (argv[i] === '--website-data' && argv[i + 1]) {
+      result.websiteDataDir = resolve(argv[++i])
       continue
     }
     if (argv[i] === '--help') {
-      console.log('Usage: node scripts/build.mjs [--database /path/to/database] [--export /path/to/export]')
+      console.log('Usage: node scripts/build.mjs [--database /path/to/database] [--website-data /path/to/website-data]')
       process.exit(0)
     }
     throw new Error(`Unknown or incomplete argument: ${argv[i]}`)
@@ -88,17 +88,17 @@ function parseMask(value, label, lineNumber) {
   return Number(mask)
 }
 
-async function loadExport(exportDir) {
-  if (!exportDir) return null
-  await ensureDirectory(exportDir, 'Supabase export directory')
+async function loadWebsiteData(websiteDataDir) {
+  if (!websiteDataDir) return null
+  await ensureDirectory(websiteDataDir, 'Website data directory')
 
-  const exportManifest = JSON.parse(await readFile(join(exportDir, 'export-manifest.json'), 'utf8'))
-  if (exportManifest.schemaVersion !== 2) {
-    throw new Error(`Unsupported export schema version: ${exportManifest.schemaVersion}`)
+  const dataManifest = JSON.parse(await readFile(join(websiteDataDir, 'export-manifest.json'), 'utf8'))
+  if (dataManifest.schemaVersion !== 2) {
+    throw new Error(`Unsupported website-data schema version: ${dataManifest.schemaVersion}`)
   }
-  const propositions = JSON.parse(await readFile(join(exportDir, 'propositions.json'), 'utf8'))
+  const propositions = JSON.parse(await readFile(join(websiteDataDir, 'propositions.json'), 'utf8'))
   if (!Array.isArray(propositions) || propositions.length > 32) {
-    throw new Error('The export must contain an array of at most 32 propositions')
+    throw new Error('Website data must contain an array of at most 32 propositions')
   }
   propositions.forEach((proposition, bit) => {
     if (proposition.bit !== bit || typeof proposition.name !== 'string') {
@@ -108,7 +108,7 @@ async function loadExport(exportDir) {
 
   const recordsByKey = new Map()
   const input = createInterface({
-    input: createReadStream(join(exportDir, 'categories.ndjson'), { encoding: 'utf8' }),
+    input: createReadStream(join(websiteDataDir, 'categories.ndjson'), { encoding: 'utf8' }),
     crlfDelay: Infinity,
   })
   let lineNumber = 0
@@ -133,17 +133,17 @@ async function loadExport(exportDir) {
       throw new Error(`categories.ndjson:${lineNumber} marks an unknown fact as true`)
     }
     const key = categoryRecordKey(record.morphisms, record.objects, record.tableSha256)
-    if (recordsByKey.has(key)) throw new Error(`Duplicate exported multiplication table at line ${lineNumber}`)
+    if (recordsByKey.has(key)) throw new Error(`Duplicate website-data multiplication table at line ${lineNumber}`)
     recordsByKey.set(key, record)
   }
-  if (recordsByKey.size !== exportManifest.categoryCount) {
-    throw new Error(`Export manifest expected ${exportManifest.categoryCount} categories but found ${recordsByKey.size}`)
+  if (recordsByKey.size !== dataManifest.categoryCount) {
+    throw new Error(`Website-data manifest expected ${dataManifest.categoryCount} categories but found ${recordsByKey.size}`)
   }
-  if (propositions.length !== exportManifest.propositionCount) {
-    throw new Error(`Export manifest expected ${exportManifest.propositionCount} propositions but found ${propositions.length}`)
+  if (propositions.length !== dataManifest.propositionCount) {
+    throw new Error(`Website-data manifest expected ${dataManifest.propositionCount} propositions but found ${propositions.length}`)
   }
   return {
-    exportManifest,
+    dataManifest,
     propositions,
     recordsByKey,
     facts: [],
@@ -163,7 +163,7 @@ function countBits(value) {
   return count
 }
 
-async function compileCell(databaseDir, outputDir, filename, morphisms, objects, offset, migration) {
+async function compileCell(databaseDir, outputDir, filename, morphisms, objects, offset, websiteData) {
   const path = join(databaseDir, filename)
   const input = createInterface({
     input: createReadStream(path, { encoding: 'utf8' }),
@@ -185,20 +185,20 @@ async function compileCell(databaseDir, outputDir, filename, morphisms, objects,
     if (table.some(row => !Array.isArray(row) || row.length !== morphisms)) {
       throw new Error(`${filename}:${count + 1} is not a ${morphisms} x ${morphisms} table`)
     }
-    if (migration) {
+    if (websiteData) {
       const key = categoryRecordKey(morphisms, objects, tableSha256(table))
-      const record = migration.recordsByKey.get(key)
+      const record = websiteData.recordsByKey.get(key)
       if (record) {
-        migration.recordsByKey.delete(key)
-        migration.matchedCategories += 1
-        migration.relationCount += countBits(record.knownMask)
+        websiteData.recordsByKey.delete(key)
+        websiteData.matchedCategories += 1
+        websiteData.relationCount += countBits(record.knownMask)
         if (record.friendlyName || record.description) {
           metadata.push([count, record.friendlyName, record.description])
-          migration.metadataCategoryCount += 1
+          websiteData.metadataCategoryCount += 1
         }
-        migration.facts.push(record.knownMask, record.valueMask)
+        websiteData.facts.push(record.knownMask, record.valueMask)
       } else {
-        migration.facts.push(0, 0)
+        websiteData.facts.push(0, 0)
       }
     }
     tables.push(table)
@@ -237,10 +237,10 @@ async function compileCell(databaseDir, outputDir, filename, morphisms, objects,
 }
 
 async function build() {
-  const { databaseDir, exportDir } = parseArgs(process.argv.slice(2))
+  const { databaseDir, websiteDataDir } = parseArgs(process.argv.slice(2))
   await ensureDirectory(SOURCE_DIR, 'Static source directory')
   await ensureDirectory(databaseDir, 'Category database directory')
-  const migration = await loadExport(exportDir)
+  const websiteData = await loadWebsiteData(websiteDataDir)
 
   const databaseFiles = (await readdir(databaseDir))
     .map(filename => {
@@ -271,7 +271,7 @@ async function build() {
       file.morphisms,
       file.objects,
       categoryCount,
-      migration,
+      websiteData,
     )
     if (!cell) continue
     cells.push(cell)
@@ -279,39 +279,39 @@ async function build() {
     console.log(`${file.morphisms},${file.objects}: ${cell.count.toLocaleString()} categories`)
   }
 
-  if (migration?.recordsByKey.size) {
-    const examples = [...migration.recordsByKey.values()]
+  if (websiteData?.recordsByKey.size) {
+    const examples = [...websiteData.recordsByKey.values()]
       .slice(0, 3)
       .map(record => `(${record.morphisms},${record.objects},${record.tableSha256.slice(0, 12)}…)`)
       .join(', ')
     throw new Error(
-      `${migration.recordsByKey.size} exported categories could not be matched to canonical tables. ` +
+      `${websiteData.recordsByKey.size} website-data categories could not be matched to canonical tables. ` +
       `Examples: ${examples}`
     )
   }
-  if (migration && migration.relationCount !== migration.exportManifest.relationCount) {
+  if (websiteData && websiteData.relationCount !== websiteData.dataManifest.relationCount) {
     throw new Error(
-      `Export manifest expected ${migration.exportManifest.relationCount} facts but matched ${migration.relationCount}`
+      `Website-data manifest expected ${websiteData.dataManifest.relationCount} facts but matched ${websiteData.relationCount}`
     )
   }
 
-  if (migration) {
-    const facts = Buffer.alloc(migration.facts.length * 4)
-    migration.facts.forEach((value, index) => facts.writeUInt32LE(value >>> 0, index * 4))
+  if (websiteData) {
+    const facts = Buffer.alloc(websiteData.facts.length * 4)
+    websiteData.facts.forEach((value, index) => facts.writeUInt32LE(value >>> 0, index * 4))
     await writeFile(join(TEMP_DIR, 'data', DATA_VERSION, 'facts.bin'), facts)
   }
 
   const manifest = {
     schemaVersion: 3,
     categoryCount,
-    propositionCount: migration?.propositions.length || 0,
-    relationCount: migration?.relationCount || 0,
-    metadataCategoryCount: migration?.metadataCategoryCount || 0,
-    factsAvailable: Boolean(migration),
+    propositionCount: websiteData?.propositions.length || 0,
+    relationCount: websiteData?.relationCount || 0,
+    metadataCategoryCount: websiteData?.metadataCategoryCount || 0,
+    factsAvailable: Boolean(websiteData),
     cells,
   }
   await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'manifest.json'), manifest)
-  await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'propositions.json'), migration?.propositions || [])
+  await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'propositions.json'), websiteData?.propositions || [])
   await bundle({
     entryPoints: {
       app: join(SOURCE_DIR, 'app.js'),
@@ -352,10 +352,10 @@ async function build() {
     return text.byteLength
   }))
   console.log(`Built ${categoryCount.toLocaleString()} categories from ${sourceBytes.reduce((a, b) => a + b, 0).toLocaleString()} source bytes.`)
-  if (migration) {
+  if (websiteData) {
     console.log(
-      `Matched ${migration.matchedCategories.toLocaleString()} exported categories and ` +
-      `${migration.relationCount.toLocaleString()} facts by multiplication-table fingerprint.`,
+      `Matched ${websiteData.matchedCategories.toLocaleString()} website-data categories and ` +
+      `${websiteData.relationCount.toLocaleString()} facts by multiplication-table fingerprint.`,
     )
   }
   console.log(`Output: ${FINAL_DIR}`)

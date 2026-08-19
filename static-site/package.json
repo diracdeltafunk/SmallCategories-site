@@ -4,11 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:export": "node scripts/build.mjs --export export",
-    "build:production": "node scripts/build.mjs --export ../../SmallCategories/website-data",
+    "build:production": "node scripts/build.mjs --website-data ../../SmallCategories/website-data",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
-    "export:supabase": "python3 scripts/export_supabase.py",
-    "check": "node --check src/app.js && node --check src/data.js && node --check src/ui.js && for file in src/pages/*.js; do node --check \"$file\" || exit 1; done && node --check scripts/build.mjs && node --check scripts/build-cloudflare.mjs && node --check scripts/serve.mjs && node --check scripts/test-build.mjs && python3 -m py_compile scripts/export_supabase.py",
+    "check": "node --check src/app.js && node --check src/data.js && node --check src/ui.js && for file in src/pages/*.js; do node --check \"$file\" || exit 1; done && node --check scripts/build.mjs && node --check scripts/build-cloudflare.mjs && node --check scripts/serve.mjs && node --check scripts/test-build.mjs",
     "test": "node scripts/test-build.mjs",
     "preview": "node scripts/serve.mjs"
   },

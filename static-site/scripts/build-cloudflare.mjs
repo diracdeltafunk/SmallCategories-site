@@ -33,7 +33,7 @@ try {
   await run(process.execPath, [
     resolve(SCRIPT_DIR, 'build.mjs'),
     '--database', join(checkout, 'database'),
-    '--export', join(checkout, 'website-data'),
+    '--website-data', join(checkout, 'website-data'),
   ])
 } finally {
   await rm(temporary, { recursive: true, force: true })

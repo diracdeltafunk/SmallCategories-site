@@ -1,7 +1,4 @@
 .env
 node_modules
-__pycache__
 static-site/dist
 static-site/.dist-tmp
-static-site/export
-static-site/.venv

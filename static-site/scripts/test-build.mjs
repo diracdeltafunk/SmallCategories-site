@@ -23,9 +23,9 @@ function jsonLine(value) {
 const temporary = await mkdtemp(join(tmpdir(), 'smallcats-static-test-'))
 try {
   const database = join(temporary, 'database')
-  const exported = join(temporary, 'export')
+  const websiteData = join(temporary, 'website-data')
   await mkdir(database)
-  await mkdir(exported)
+  await mkdir(websiteData)
 
   const table = [[0]]
   const digest = createHash('sha256').update(JSON.stringify(table)).digest('hex')
@@ -35,14 +35,14 @@ try {
   ]
 
   await writeFile(join(database, 'cats1-1.txt'), jsonLine(table))
-  await writeFile(join(exported, 'propositions.json'), jsonLine(propositions))
-  await writeFile(join(exported, 'export-manifest.json'), jsonLine({
+  await writeFile(join(websiteData, 'propositions.json'), jsonLine(propositions))
+  await writeFile(join(websiteData, 'export-manifest.json'), jsonLine({
     schemaVersion: 2,
     categoryCount: 1,
     propositionCount: 2,
     relationCount: 2,
   }))
-  await writeFile(join(exported, 'categories.ndjson'), jsonLine({
+  await writeFile(join(websiteData, 'categories.ndjson'), jsonLine({
     morphisms: 1,
     objects: 1,
     tableSha256: digest,
@@ -55,9 +55,9 @@ try {
   const { stdout } = await execFileAsync(process.execPath, [
     join(SCRIPT_DIR, 'build.mjs'),
     '--database', database,
-    '--export', exported,
+    '--website-data', websiteData,
   ], { cwd: SITE_DIR })
-  assert(stdout.includes('Matched 1 exported categories'), 'category matching was not reported')
+  assert(stdout.includes('Matched 1 website-data categories'), 'category matching was not reported')
 
   const manifest = JSON.parse(await readFile(join(DATA_DIR, 'manifest.json'), 'utf8'))
   assert(manifest.categoryCount === 1, 'wrong category count')
@@ -80,13 +80,17 @@ try {
   assert(appBundleName && styleBundleName, 'fingerprinted assets were not linked from the app shell')
   assert(indexHtml.includes('fa-solid fa-shuffle'), 'the original navbar icon was not retained')
   assert(!indexHtml.includes('/support') && !indexHtml.toLowerCase().includes('ko-fi'), 'retired support links leaked into the app shell')
-  const bundledApp = await readFile(join(DIST_DIR, appBundleName), 'utf8')
-  assert(!bundledApp.includes('legacy-ids'), 'legacy ID route support leaked into the browser bundle')
-  assert(!bundledApp.includes('/support') && !bundledApp.toLowerCase().includes('ko-fi'), 'retired support page leaked into the browser bundle')
-  assert(bundledApp.includes('fa-paw') && bundledApp.includes('fa-circle-check'), 'page icons were not included in the browser bundle')
-  assert(bundledApp.includes('api.thecatapi.com/v1/images/search?limit=1'), 'the Small Cat API request was not included')
-  assert(bundledApp.includes('Small cats provided by') && !bundledApp.includes('x-api-key'), 'the Small Cat attribution or API-key guard is missing')
-  assert(bundledApp.includes('Each nonempty cell is complete') && bundledApp.includes('stats-table'), 'the statistics table explanation was not retained')
+  const bundledJavaScript = (await Promise.all(
+    (await readdir(DIST_DIR, { recursive: true }))
+      .filter(filename => filename.endsWith('.js'))
+      .map(filename => readFile(join(DIST_DIR, filename), 'utf8')),
+  )).join('\n')
+  assert(!bundledJavaScript.includes('legacy-ids'), 'legacy ID route support leaked into the browser bundle')
+  assert(!bundledJavaScript.includes('/support') && !bundledJavaScript.toLowerCase().includes('ko-fi'), 'retired support page leaked into the browser bundle')
+  assert(bundledJavaScript.includes('fa-paw') && bundledJavaScript.includes('fa-scale-balanced'), 'page icons were not included in the browser bundle')
+  assert(bundledJavaScript.includes('api.thecatapi.com/v1/images/search?limit=1'), 'the Small Cat API request was not included')
+  assert(bundledJavaScript.includes('Small cats provided by') && !bundledJavaScript.includes('x-api-key'), 'the Small Cat attribution or API-key guard is missing')
+  assert(bundledJavaScript.includes('Each nonempty cell is complete') && bundledJavaScript.includes('stats-table'), 'the statistics table explanation was not retained')
   const bundledStyles = await readFile(join(DIST_DIR, styleBundleName), 'utf8')
   assert(bundledStyles.includes('#app:focus{outline:none}'), 'the application focus outline was not suppressed')
   const outputFiles = await readdir(DIST_DIR)
