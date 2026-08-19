@@ -73,7 +73,11 @@ try {
 
   const metadata = JSON.parse(await readFile(join(DIST_DIR, 'data', 'metadata', '1-1.json'), 'utf8'))
   assert(metadata[0][1] === 'Terminal test category', 'friendly name was not compiled')
-  const bundledApp = await readFile(join(DIST_DIR, 'app.js'), 'utf8')
+  const indexHtml = await readFile(join(DIST_DIR, 'index.html'), 'utf8')
+  const appBundleName = /src="\/(app-[A-Z0-9]+\.js)"/.exec(indexHtml)?.[1]
+  const styleBundleName = /href="\/(styles-[A-Z0-9]+\.css)"/.exec(indexHtml)?.[1]
+  assert(appBundleName && styleBundleName, 'fingerprinted assets were not linked from the app shell')
+  const bundledApp = await readFile(join(DIST_DIR, appBundleName), 'utf8')
   assert(!bundledApp.includes('legacy-ids'), 'legacy ID route support leaked into the browser bundle')
   console.log('Static export build fixture passed.')
 } finally {

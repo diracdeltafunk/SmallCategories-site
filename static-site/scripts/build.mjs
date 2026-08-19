@@ -309,18 +309,31 @@ async function build() {
   }
   await writeJson(join(TEMP_DIR, 'data', 'manifest.json'), manifest)
   await writeJson(join(TEMP_DIR, 'data', 'propositions.json'), migration?.propositions || [])
-  await cp(resolve(SITE_DIR, 'node_modules/bulma/css/bulma.min.css'), join(TEMP_DIR, 'bulma.min.css'))
+  await rm(join(TEMP_DIR, 'app.js'), { force: true })
+  await rm(join(TEMP_DIR, 'styles.css'), { force: true })
+  await rm(join(TEMP_DIR, 'visualization.js'), { force: true })
   await bundle({
-    entryPoints: [join(SOURCE_DIR, 'app.js')],
-    outfile: join(TEMP_DIR, 'app.js'),
+    entryPoints: {
+      app: join(SOURCE_DIR, 'app.js'),
+      styles: join(SOURCE_DIR, 'styles.css'),
+    },
+    outdir: TEMP_DIR,
+    entryNames: '[name]-[hash]',
     bundle: true,
     format: 'esm',
     minify: true,
     sourcemap: true,
     target: ['es2022'],
-    allowOverwrite: true,
   })
-  await rm(join(TEMP_DIR, 'visualization.js'), { force: true })
+  const bundledFiles = await readdir(TEMP_DIR)
+  const appBundle = bundledFiles.find(filename => /^app-[A-Z0-9]+\.js$/.test(filename))
+  const styleBundle = bundledFiles.find(filename => /^styles-[A-Z0-9]+\.css$/.test(filename))
+  if (!appBundle || !styleBundle) throw new Error('Could not identify fingerprinted application assets')
+  const indexPath = join(TEMP_DIR, 'index.html')
+  const indexHtml = (await readFile(indexPath, 'utf8'))
+    .replace('/app.js', `/${appBundle}`)
+    .replace('/styles.css', `/${styleBundle}`)
+  await writeFile(indexPath, indexHtml, 'utf8')
 
   await rm(FINAL_DIR, { recursive: true, force: true })
   await rename(TEMP_DIR, FINAL_DIR)
