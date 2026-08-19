@@ -1,0 +1,201 @@
+<section class="hero is-info is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        <span class="icon-text">
+          <span class="icon"><i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i></span>
+          <span>Enumeration &amp; Verification</span>
+        </span>
+      </h1>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="content methodology-content">
+    <p class="lead">SmallCats is built by turning the category axioms into a finite constraint problem. For each pair $(n,k)$, the program finds every composition table with $n$ morphisms and $k$ objects, then keeps one table from each possible relabelling. Here is how that translation works, how we check the result, and why two of our counts differ from those reported by Cruttwell and Leblanc.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-list-ol" aria-hidden="true"></i></span>
+        <span>Representing a category by a table</span>
+      </span>
+    </h2>
+    <p>Fix nonnegative integers $n$ and $k$. Let $T(n,k)$ be the number of isomorphism classes of categories with $n$ morphisms and $k$ objects. The morphisms include the $k$ identities, so necessarily $k\leq n$. We count categories up to isomorphism, not merely up to equivalence, and take $T(0,0)=1$ for the empty category.</p>
+    <p>We label the morphisms by $M$, reserving the subset $O$ for the identities:</p>
+    $$
+    M=\{0,\dots,n-1\},
+    \qquad
+    O=\{0,\dots,k-1\}\subseteq M.
+    $$
+    <p>Here each object is identified with its identity morphism. For $f\in M$, write $d(f)$ and $c(f)$ for the identity morphisms of its domain and codomain; in particular, $d(i)=c(i)=i$ for $i\in O$. We store composition in an $n\times n$ table $A$, using the extra value $n$ to mean that a composite is undefined:</p>
+    $$
+    A_{f,g}=
+    \begin{cases}
+    f\circ g, &amp; d(f)=c(g),\\
+    n, &amp; d(f)\neq c(g).
+    \end{cases}
+    $$
+    <p>Our convention is that $f\circ g$ means “first $g$, then $f$.” The identity and associativity axioms become the constraints</p>
+    $$
+    A_{f,d(f)}=f=A_{c(f),f}
+    $$
+    <p>and</p>
+    $$
+    A_{A_{f,g},h}=A_{f,A_{g,h}}
+    $$
+    <p>whenever $d(f)=c(g)$ and $d(g)=c(h)$. Together with the domain, codomain, and composability constraints, these are exactly the category axioms in multiplication-table form. We give this finite constraint problem to <a href="https://github.com/minion/minion">Minion</a>, which enumerates every labelled solution.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-gears" aria-hidden="true"></i></span>
+        <span>Removing the labels</span>
+      </span>
+    </h2>
+    <p>Of course, one category usually appears under many labellings. The $k$ identity morphisms may be permuted among themselves, and the other $n-k$ morphisms may be permuted among themselves. Thus the relevant relabelling group is</p>
+    $$
+    G_{n,k}=S_k\times S_{n-k},
+    $$
+    <p>where $S_r$ is the symmetric group on $r$ labels. Extend each $\sigma\in G_{n,k}$ by setting $\sigma(n)=n$, so that the undefined value remains fixed. The relabelled table is</p>
+    $$
+    (\sigma\cdot A)_{f,g}
+    =\sigma\!\left(A_{\sigma^{-1}(f),\sigma^{-1}(g)}\right).
+    $$
+    <p>Two tables describe isomorphic categories exactly when they lie in the same orbit of this action. We read tables row by row and choose</p>
+    $$
+    \operatorname{can}(A)=\min_{\sigma\in G_{n,k}}(\sigma\cdot A)
+    $$
+    <p>in lexicographic order. Replacing every solution by $\operatorname{can}(A)$ and retaining one copy leaves exactly one representative of each isomorphism class.</p>
+    <p>For the larger cells, we divide the same search into smaller pieces according to intrinsic data such as the number of nonidentity idempotents, non-idempotent endomorphisms, and inverse pairs between distinct objects. Each category has one definite combination of these counts, so it appears in exactly one piece. We then reunite the results and canonicalize under the full group $G_{n,k}$.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+        <span>Checking the stored tables</span>
+      </span>
+    </h2>
+    <p>Once the tables are generated, a separate validator reads them back in and reconstructs every identity, domain, codomain, and defined composite. It then checks the type of every composite and every associativity equation. All $249{,}382$ tables in the current database pass.</p>
+    <p>Next, for each table $A$, we compute every permitted relabelling and verify that $\operatorname{can}(A)=A$. Across the whole database this means checking $4{,}054{,}192{,}164$ relabelled tables. Finally, we encode the composition tables as colored graphs and canonicalize those graphs independently; no two entries in a cell are isomorphic.</p>
+    <p>These checks tell us that every stored row is a genuine category and that no category has been stored twice. They do not, by themselves, tell us whether a row is missing. For that we use a second count, based on connected components.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i></span>
+        <span>Counting connected components</span>
+      </span>
+    </h2>
+    <p>Form a graph whose vertices are the objects of a category. Each nonidentity morphism $f\colon x\to y$ supplies an undirected edge between $x$ and $y$. We call the category connected when this graph is connected. Every finite category is uniquely a disjoint union of connected categories.</p>
+    <p>Let $C(n,k)$ be the number of connected categories with $n$ morphisms and $k$ objects. Since a general category is a finite multiset of connected categories, we have the formal power-series identity</p>
+    <div class="methodology-formula">
+    $$
+    \sum_{n\geq 0}\sum_{k=0}^{n}T(n,k)x^ny^k
+    =
+    \prod_{n\geq 1}\prod_{k=1}^{n}
+    \left(1-x^ny^k\right)^{-C(n,k)}.
+    $$
+    </div>
+    <p>Here is why. One fixed connected category with $n$ morphisms and $k$ objects may appear zero times, once, twice, and so on. Its possible contributions are</p>
+    $$
+    1+x^ny^k+x^{2n}y^{2k}+\cdots
+    =\frac{1}{1-x^ny^k}.
+    $$
+    <p>There are $C(n,k)$ connected isomorphism classes of that size, which gives the exponent $C(n,k)$. Multiplying over all sizes constructs every finite multiset of connected categories, and hence every finite category.</p>
+    <p>Consequently, the connected counts in smaller cells determine the number $D(n,k)$ of disconnected categories before we inspect the $(n,k)$ file:</p>
+    $$
+    D(n,k)=
+    [x^ny^k]
+    \prod_{a=1}^{n-1}\prod_{b=1}^{a}
+    \left(1-x^ay^b\right)^{-C(a,b)},
+    \qquad
+    T(n,k)=C(n,k)+D(n,k).
+    $$
+    <p>We check more than the final coefficient. If a component size $(a,b)$ occurs $r$ times and there are $c=C(a,b)$ connected categories of that size, then there are $\binom{c+r-1}{r}$ ways to choose those components. Multiplying over the distinct component sizes gives the exact number of categories with that component pattern. Every disconnected component pattern in every populated cell occurs with the expected multiplicity.</p>
+    <p>This calculation determines the disconnected part of a cell, but it cannot detect a missing connected category: that still requires the exhaustive search or a separate argument. This distinction is exactly what we need for the two disputed cells.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+        <span>The disputed and corrected counts</span>
+      </span>
+    </h2>
+    <div class="table-container"><table class="table is-bordered is-striped methodology-table">
+      <thead><tr><th>Morphisms</th><th>Objects</th><th>Cruttwell–Leblanc</th><th>Earlier SmallCats</th><th>Current SmallCats</th></tr></thead>
+      <tbody>
+        <tr><td>9</td><td>3</td><td>60,201</td><td>60,322</td><td><strong>60,322</strong></td></tr>
+        <tr><td>10</td><td>4</td><td>65,922</td><td>68,815</td><td><strong>68,990</strong></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>9 morphisms and 3 objects</h3>
+    <p>Start with the part that does not depend on the search in this cell. The smaller connected counts give</p>
+    $$
+    D(9,3)=56{,}754.
+    $$
+    <p>The original, unsplit SmallCats search finds $C(9,3)=3{,}568$ connected categories. Therefore</p>
+    $$
+    T(9,3)=56{,}754+3{,}568=60{,}322.
+    $$
+    <p>The Cruttwell–Leblanc total would instead imply</p>
+    $$
+    C(9,3)=60{,}201-56{,}754=3{,}447,
+    $$
+    <p>so their total has a connected contribution $121$ smaller than ours. Their <a href="https://www.reluctantm.com/gcruttw/publications/ams2014CruttwellCountingFiniteCats.pdf">presentation</a> says that this is where their program changed to counting connected categories and reconstructing the disconnected ones, making that stage the natural place to investigate. Without their code or intermediate output, however, we cannot distinguish an error in the connected search from an error in the reconstruction or reporting.</p>
+
+    <h3>10 morphisms and 4 objects</h3>
+    <p>Here the reported value $65{,}922$ cannot satisfy the component formula. Even if we use Cruttwell and Leblanc’s lower value at $(9,3)$, their smaller counts produce</p>
+    $$
+    D_{\mathrm{CL}}(10,4)=67{,}392&gt;65{,}922.
+    $$
+    <p>There would already be more disconnected categories than their proposed total. Using the corrected value $T(9,3)=60{,}322$ instead gives</p>
+    $$
+    D(10,4)=67{,}513.
+    $$
+    <p>It remains to count the connected categories. An exhaustive search gives $1{,}465$ connected <em>skeletal</em> categories, meaning that no two distinct objects are isomorphic.</p>
+    <p>Every nonskeletal category is obtained from its skeleton $S$ by replacing a skeleton object $x$ with $m_x$ isomorphic copies. The resulting category $\mathcal C$ has</p>
+    $$
+    \sum_x m_x=4,
+    \qquad
+    |\operatorname{Mor}(\mathcal C)|
+    =\sum_{x,y\in\operatorname{Ob}(S)}
+    m_xm_y\,|\operatorname{Hom}_S(x,y)|.
+    $$
+    <p>If the skeleton has one object, then that object is copied four times, and its identity morphism alone produces $4^2=16$ morphisms. If the skeleton has two objects, their multiplicities are either $(3,1)$ or $(2,2)$. The identity morphisms contribute $3^2+1^2=10$ or $2^2+2^2=8$ morphisms, and connectedness requires at least one morphism between the two objects, contributing another $3$ or $4$. Thus the two-object cases have at least $13$ or $12$ morphisms.</p>
+    <p>A nonskeletal category in the $(10,4)$ cell must therefore have a three-object skeleton with multiplicities $(2,1,1)$. Such a connected skeleton has at least five morphisms. Duplicating one object adds three identity-derived morphisms and at least one copy of an incident morphism, so it adds at least four altogether. A skeleton which expands to exactly ten morphisms can consequently have only five or six morphisms.</p>
+    <p>We now filter the complete $(5,3)$ and $(6,3)$ lists to their connected skeletal entries, mark each possible object to duplicate, and quotient those marked choices by automorphisms of the skeleton. Exactly $12$ isomorphism classes remain.</p>
+    <p>Hence</p>
+    $$
+    C(10,4)=1{,}465+12=1{,}477
+    $$
+    <p>and finally</p>
+    $$
+    \begin{aligned}
+    T(10,4)
+    &amp;=D(10,4)+C(10,4)\\
+    &amp;=67{,}513+1{,}477\\
+    &amp;=68{,}990.
+    \end{aligned}
+    $$
+    <p>The earlier SmallCats file contained $68{,}815$ categories. It lacked $163$ disconnected categories and the $12$ nonskeletal connected categories above, for a total of $175$ additional isomorphism classes.</p>
+
+    <div class="buttons methodology-links">
+      <a class="button is-link is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">
+        <span class="icon-text">
+          <span class="icon"><i class="fa-brands fa-github" aria-hidden="true"></i></span>
+          <span>Generator and database</span>
+        </span>
+      </a>
+      <a class="button is-info is-light is-outlined" href="https://oeis.org/A125697">
+        <span class="icon-text">
+          <span class="icon"><i class="fa-solid fa-table-cells" aria-hidden="true"></i></span>
+          <span>OEIS category table</span>
+        </span>
+      </a>
+      <a class="button is-success is-light is-outlined" href="/stats" data-link>
+        <span class="icon-text">
+          <span class="icon"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></span>
+          <span>Back to statistics</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>

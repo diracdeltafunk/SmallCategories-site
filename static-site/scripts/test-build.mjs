@@ -90,6 +90,7 @@ try {
   const bundledStyles = await readFile(join(DIST_DIR, styleBundleName), 'utf8')
   assert(bundledStyles.includes('#app:focus{outline:none}'), 'the application focus outline was not suppressed')
   const outputFiles = await readdir(DIST_DIR)
+  assert(!outputFiles.includes('pages'), 'source page templates leaked into the published site')
   assert(outputFiles.some(filename => /^fa-solid-900-[A-Z0-9]+\.woff2$/.test(filename)), 'the solid icon font was not emitted')
   assert(outputFiles.some(filename => /^fa-brands-400-[A-Z0-9]+\.woff2$/.test(filename)), 'the brand icon font was not emitted')
   console.log('Static export build fixture passed.')

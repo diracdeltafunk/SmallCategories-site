@@ -20,6 +20,8 @@ node scripts/build.mjs --database /path/to/SmallCategories/database
 
 The generated site is written to `dist/`. It contains the application shell plus sharded JSON representations of the category multiplication tables. Generated output is ignored by Git.
 
+Page copy and markup live in `src/pages/<route>.html`; the neighboring JavaScript modules contain only page-specific dynamic behavior. Edit `src/pages/stats.html` and `src/pages/enumeration.html` for the statistics and enumeration pages, then rebuild and refresh the local preview.
+
 The old site's Bulma 0.9.4 visual language and Font Awesome 6.4.0 icons are kept, while the draggable quiver uses only the modular D3 selection, force, and drag packages. The enumeration page renders its mathematics with KaTeX 0.18.4. The build bundles all of these assets locally with esbuild, so rendering does not depend on a third-party CDN.
 
 The build reads the database working tree. Check its Git status before building: local deletions or empty category files will be reflected in the output. Production builds should use a clean, pinned database commit.

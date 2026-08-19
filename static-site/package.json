@@ -8,7 +8,7 @@
     "build:production": "node scripts/build.mjs --export ../../SmallCategories/website-data",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
     "export:supabase": "python3 scripts/export_supabase.py",
-    "check": "node --check src/app.js && node --check scripts/build.mjs && node --check scripts/build-cloudflare.mjs && node --check scripts/serve.mjs && node --check scripts/test-build.mjs && python3 -m py_compile scripts/export_supabase.py",
+    "check": "node --check src/app.js && node --check src/pages/enumeration.js && node --check src/pages/stats.js && node --check scripts/build.mjs && node --check scripts/build-cloudflare.mjs && node --check scripts/serve.mjs && node --check scripts/test-build.mjs && python3 -m py_compile scripts/export_supabase.py",
     "test": "node scripts/test-build.mjs",
     "preview": "node scripts/serve.mjs"
   },

@@ -313,6 +313,7 @@ async function build() {
   await rm(join(TEMP_DIR, 'app.js'), { force: true })
   await rm(join(TEMP_DIR, 'styles.css'), { force: true })
   await rm(join(TEMP_DIR, 'visualization.js'), { force: true })
+  await rm(join(TEMP_DIR, 'pages'), { recursive: true, force: true })
   await bundle({
     entryPoints: {
       app: join(SOURCE_DIR, 'app.js'),
@@ -326,6 +327,7 @@ async function build() {
     format: 'esm',
     splitting: true,
     loader: {
+      '.html': 'text',
       '.ttf': 'file',
       '.woff': 'file',
       '.woff2': 'file',
