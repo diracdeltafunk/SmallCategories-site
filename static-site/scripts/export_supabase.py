@@ -88,7 +88,6 @@ def export_database(connection_string: str, output: Path) -> dict[str, int]:
 
         propositions = [
             {
-                "id": row[0],
                 "name": row[1],
                 "description": row[2],
                 "bit": bit,
@@ -171,10 +170,8 @@ def export_database(connection_string: str, output: Path) -> dict[str, int]:
                 GROUP BY kb.category
             )
             SELECT
-                c.id::text,
                 c.morphisms,
                 c.objects,
-                c."index",
                 c.table,
                 c.friendly_name,
                 c.description,
@@ -191,21 +188,19 @@ def export_database(connection_string: str, output: Path) -> dict[str, int]:
                 cursor.itersize = 1_000
                 cursor.execute(query)
                 for row in cursor:
-                    table = row[4]
+                    table = row[2]
                     if not isinstance(table, (list, tuple)):
                         raise RuntimeError(
-                            f"Category {row[0]} has an unexpected table value: {type(table).__name__}"
+                            f"Category ({row[0]},{row[1]}) has an unexpected table value: {type(table).__name__}"
                         )
                     record = {
-                        "id": row[0],
-                        "morphisms": row[1],
-                        "objects": row[2],
-                        "sourceIndex": row[3],
+                        "morphisms": row[0],
+                        "objects": row[1],
                         "tableSha256": table_digest(table),
-                        "friendlyName": row[5],
-                        "description": row[6],
-                        "knownMask": str(row[7]),
-                        "valueMask": str(row[8]),
+                        "friendlyName": row[3],
+                        "description": row[4],
+                        "knownMask": str(row[5]),
+                        "valueMask": str(row[6]),
                     }
                     stream.write(f"{compact_json(record)}\n")
                     exported_categories += 1
@@ -218,7 +213,7 @@ def export_database(connection_string: str, output: Path) -> dict[str, int]:
             )
 
         manifest = {
-            "schemaVersion": 1,
+            "schemaVersion": 2,
             "exportedAt": datetime.now(timezone.utc).isoformat(),
             "categoryIdentity": "sha256(compact JSON multiplication table)",
             "categoryCount": category_count,

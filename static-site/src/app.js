@@ -1,12 +1,14 @@
+import { mountCategoryVisualization } from './visualization.js'
+
 const app = document.querySelector('#app')
 const numberFormat = new Intl.NumberFormat('en-US')
 
 let manifestPromise
 let propositionsPromise
 let factsPromise
-let legacyIdsPromise
 const metadataPromises = new Map()
 let routeGeneration = 0
+let visualizationCleanup = () => {}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -54,20 +56,14 @@ function getFacts(manifest) {
   return factsPromise
 }
 
-function getLegacyIds() {
-  legacyIdsPromise ??= fetchJson('legacy-ids.json')
-  return legacyIdsPromise
-}
-
 function getCellMetadata(cell) {
   if (!cell.metadataCount) return Promise.resolve(new Map())
   const key = `${cell.morphisms}-${cell.objects}`
   if (!metadataPromises.has(key)) {
     metadataPromises.set(key, fetchJson(`metadata/${key}.json`).then(rows =>
       new Map(rows.map(row => [row[0], {
-        id: row[1],
-        friendlyName: row[2],
-        description: row[3],
+        friendlyName: row[1],
+        description: row[2],
       }]))))
   }
   return metadataPromises.get(key)
@@ -109,7 +105,8 @@ function setTitle(title) {
 }
 
 function hero(title, tone = '') {
-  return `<div class="hero ${tone}"><div class="container"><h1>${title}</h1></div></div>`
+  const bulmaTone = { teal: 'primary', green: 'success', dark: 'dark' }[tone] || tone || 'link'
+  return `<section class="hero is-${bulmaTone} is-small"><div class="hero-body"><div class="container"><h1 class="title">${title}</h1></div></div></section>`
 }
 
 function setCurrentNavigation(path) {
@@ -126,7 +123,7 @@ function showError(error) {
   setTitle('Error')
   app.innerHTML = `${hero('Something went wrong', 'dark')}
     <section class="section container">
-      <div class="notice error">
+      <div class="notification is-danger is-light">
         <strong>The static SmallCats preview could not load this page.</strong>
         <p>${escapeHtml(error.message || error)}</p>
       </div>
@@ -143,17 +140,21 @@ async function renderHome() {
   const manifest = await getManifest()
   setTitle('')
   app.innerHTML = `
-    <section class="section container">
-      <h1>😺 Welcome to SmallCategories!</h1>
-      <p class="lead">The SmallCategories Project is a database of isomorphism classes of small finite categories.</p>
-      <p>This static build contains <strong>${numberFormat.format(manifest.categoryCount)}</strong> categories and does not need an application server or an online database.</p>
-      ${manifest.factsAvailable ? '' : `<div class="notice info">
-        This is the parallel static migration. Supabase-only proposition data and legacy UUIDs will be added after a verified read-only export.
-      </div>`}
-      <div class="buttons">
-        <a class="button" href="/random" data-link>Random category</a>
-        <a class="button secondary" href="/query" data-link>Query</a>
-        <a class="button secondary" href="https://github.com/diracdeltafunk/SmallCategories">Database source</a>
+    <section class="hero home-hero">
+      <div class="hero-body"><div class="container">
+        <h1 class="title">😺 Welcome to SmallCategories!</h1>
+        <p class="lead block">The SmallCategories Project is a database of isomorphism classes of small finite categories.</p>
+        <p class="block">There are <strong>${numberFormat.format(manifest.categoryCount)}</strong> categories in this build, including every category with at most seven morphisms. Browsing and queries run entirely in your browser.</p>
+        <div class="notification is-warning is-light">
+          SmallCats.info is in active development. The database and functionality are not yet complete, and all data is subject to change.
+        </div>
+        ${manifest.factsAvailable ? '' : `<div class="notification is-info is-light">Proposition data is not included in this build.</div>`}
+        <div class="buttons">
+          <a class="button is-link is-light is-outlined" href="/random" data-link>Random</a>
+          <a class="button is-primary is-light is-outlined" href="/query" data-link>Query</a>
+          <a class="button is-info is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">Database Info</a>
+        </div>
+      </div>
       </div>
     </section>`
 }
@@ -166,7 +167,7 @@ async function renderCategories() {
   app.innerHTML = `${hero('Browse Categories')}
     <section class="section container">
       <div class="grid two">
-        <form class="panel" id="browse-form">
+        <form class="box" id="browse-form">
           <div class="field">
             <label for="browse-morphisms">Morphisms</label>
             <select id="browse-morphisms" name="morphisms" required>
@@ -180,7 +181,7 @@ async function renderCategories() {
               <option value="">Select morphisms first…</option>
             </select>
           </div>
-          <p><button class="button" type="submit" disabled>View</button></p>
+          <p><button class="button is-link" type="submit" disabled>View</button></p>
         </form>
         <div id="browse-results"></div>
       </div>
@@ -211,7 +212,7 @@ async function renderCategories() {
 async function renderBrowseResults(cell, page) {
   const results = document.querySelector('#browse-results')
   if (!cell) {
-    results.innerHTML = '<div class="notice error">That part of the database is not available.</div>'
+    results.innerHTML = '<div class="notification is-danger is-light">That part of the database is not available.</div>'
     return
   }
   const pageSize = 10
@@ -221,9 +222,9 @@ async function renderBrowseResults(cell, page) {
   const metadata = await getCellMetadata(cell)
   results.innerHTML = `
     ${pages > 1 ? `<div class="pagination">
-      <button class="button secondary" type="button" data-page="${page - 1}" ${page === 1 ? 'disabled' : ''}>Previous</button>
+      <button class="button is-link is-light" type="button" data-page="${page - 1}" ${page === 1 ? 'disabled' : ''}>Previous</button>
       <span>Page ${page} of ${pages}</span>
-      <button class="button secondary" type="button" data-page="${page + 1}" ${page === pages ? 'disabled' : ''}>Next</button>
+      <button class="button is-link is-light" type="button" data-page="${page + 1}" ${page === pages ? 'disabled' : ''}>Next</button>
     </div>` : ''}
     <div class="table-wrap"><table>
       <thead><tr><th>ID</th><th>Name</th></tr></thead>
@@ -243,23 +244,23 @@ async function renderPropositions() {
   app.innerHTML = `${hero('Browse Propositions')}
     <section class="section container">
       ${propositions.length === 0
-        ? '<div class="notice info">Proposition definitions will appear here after the Supabase export is merged.</div>'
+        ? '<div class="notification is-info is-light">No proposition definitions are included in this build.</div>'
         : `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
-          ${propositions.map(prop => `<tr><td><a href="/proposition/${encodeURIComponent(prop.id)}" data-link>${escapeHtml(prop.name)}</a></td><td>${escapeHtml(prop.description || '')}</td></tr>`).join('')}
+          ${propositions.map(prop => `<tr><td><a href="/proposition/${encodeURIComponent(prop.name)}" data-link>${escapeHtml(prop.name)}</a></td><td>${escapeHtml(prop.description || '')}</td></tr>`).join('')}
         </tbody></table></div>`}
     </section>`
 }
 
-async function renderProposition(id) {
+async function renderProposition(name) {
   const propositions = await getPropositions()
-  const proposition = propositions.find(item => item.id === id)
+  const proposition = propositions.find(item => item.name === name)
   if (!proposition) return renderNotFound()
   setTitle(proposition.name)
   app.innerHTML = `${hero(`Proposition ${escapeHtml(proposition.name)}`, 'green')}
     <section class="section container">
-      <div class="panel">
+      <div class="box">
         <dl>
-          <dt><strong>ID</strong></dt><dd>${escapeHtml(proposition.id)}</dd>
+          <dt><strong>Name</strong></dt><dd><code>${escapeHtml(proposition.name)}</code></dd>
           <dt><strong>Description</strong></dt><dd>${escapeHtml(proposition.description || 'N/A')}</dd>
         </dl>
       </div>
@@ -278,7 +279,7 @@ async function renderQuery() {
   setTitle('Query')
   app.innerHTML = `${hero('Query', 'teal')}
     <section class="section container">
-      <form class="panel" id="query-form">
+      <form class="box" id="query-form">
         <div class="form-grid">
           <div class="field"><label for="morphisms-lb">Minimum morphisms</label><input id="morphisms-lb" name="morphisms_lb" type="number" min="0" placeholder="0"></div>
           <div class="field"><label for="morphisms-ub">Maximum morphisms</label><input id="morphisms-ub" name="morphisms_ub" type="number" min="0" placeholder="No maximum"></div>
@@ -286,10 +287,10 @@ async function renderQuery() {
           <div class="field"><label for="objects-ub">Maximum objects</label><input id="objects-ub" name="objects_ub" type="number" min="0" placeholder="No maximum"></div>
         </div>
         ${propositions.length > 0 ? `<div class="grid two">
-          <fieldset><legend>Satisfying</legend><div class="checkboxes">${propositions.map(prop => `<label><input type="checkbox" name="true_prop" value="${escapeHtml(prop.id)}"> ${escapeHtml(prop.name)}</label>`).join('')}</div></fieldset>
-          <fieldset><legend>Not satisfying</legend><div class="checkboxes">${propositions.map(prop => `<label><input type="checkbox" name="false_prop" value="${escapeHtml(prop.id)}"> ${escapeHtml(prop.name)}</label>`).join('')}</div></fieldset>
-        </div>` : '<div class="notice info">This first migration build supports numeric queries. Proposition filters will be enabled after the Supabase export.</div>'}
-        <p><button class="button" type="submit">Search</button></p>
+          <fieldset><legend>Satisfying</legend><div class="checkboxes">${propositions.map(prop => `<label><input type="checkbox" name="true_prop" value="${prop.bit}"> ${escapeHtml(prop.name)}</label>`).join('')}</div></fieldset>
+          <fieldset><legend>Not satisfying</legend><div class="checkboxes">${propositions.map(prop => `<label><input type="checkbox" name="false_prop" value="${prop.bit}"> ${escapeHtml(prop.name)}</label>`).join('')}</div></fieldset>
+        </div>` : '<div class="notification is-info is-light">This build supports numeric queries only because it contains no proposition data.</div>'}
+        <p><button class="button is-primary" type="submit">Search</button></p>
       </form>
       <div id="query-results"></div>
     </section>`
@@ -304,13 +305,13 @@ async function renderQuery() {
       objectsUb: boundValue(formData, 'objects_ub', Number.MAX_SAFE_INTEGER),
     }
     if (Object.values(bounds).some(Number.isNaN)) {
-      document.querySelector('#query-results').innerHTML = '<div class="notice error">Bounds must be whole numbers.</div>'
+      document.querySelector('#query-results').innerHTML = '<div class="notification is-danger is-light">Bounds must be whole numbers.</div>'
       return
     }
     const trueProps = formData.getAll('true_prop')
     const falseProps = formData.getAll('false_prop')
     if ((trueProps.length || falseProps.length) && !manifest.factsAvailable) {
-      document.querySelector('#query-results').innerHTML = '<div class="notice error">Proposition facts have not been imported into this build yet.</div>'
+      document.querySelector('#query-results').innerHTML = '<div class="notification is-danger is-light">Proposition facts are not available in this build.</div>'
       return
     }
     try {
@@ -326,15 +327,17 @@ function matchesPropositions(facts, trueBits, falseBits) {
     falseBits.every(bit => (facts.knownMask & bit) !== 0 && (facts.valueMask & bit) === 0)
 }
 
-async function renderQueryResults(manifest, propositions, bounds, truePropIds, falsePropIds) {
+async function renderQueryResults(manifest, propositions, bounds, truePropBits, falsePropBits) {
   const cells = manifest.cells.filter(cell =>
     cell.morphisms >= bounds.morphismsLb &&
     cell.morphisms <= bounds.morphismsUb &&
     cell.objects >= bounds.objectsLb &&
     cell.objects <= bounds.objectsUb)
-  const propositionById = new Map(propositions.map(proposition => [proposition.id, proposition]))
-  const trueBits = truePropIds.map(id => 2 ** propositionById.get(id).bit)
-  const falseBits = falsePropIds.map(id => 2 ** propositionById.get(id).bit)
+  const propositionBits = new Set(propositions.map(proposition => proposition.bit))
+  const selectedBits = [...truePropBits, ...falsePropBits].map(Number)
+  if (selectedBits.some(bit => !propositionBits.has(bit))) throw new Error('The query contains an unknown proposition')
+  const trueBits = truePropBits.map(bit => 2 ** Number(bit))
+  const falseBits = falsePropBits.map(bit => 2 ** Number(bit))
   const needsFacts = trueBits.length > 0 || falseBits.length > 0
   const factData = needsFacts ? await getFacts(manifest) : null
   let count = 0
@@ -351,7 +354,7 @@ async function renderQueryResults(manifest, propositions, bounds, truePropIds, f
     ...row,
     metadata: await getCategoryMetadata(row, row.index),
   })))
-  document.querySelector('#query-results').innerHTML = `<div class="panel">
+  document.querySelector('#query-results').innerHTML = `<div class="box">
     ${count === 0 ? '<p>No categories matched.</p>' : `<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th></tr></thead><tbody>
       ${namedRows.map(row => `<tr><td><a href="${categoryHref(row.morphisms, row.objects, row.index)}" data-link>${categoryLabel(row.morphisms, row.objects, row.index)}</a></td><td class="${row.metadata?.friendlyName ? '' : 'muted'}">${escapeHtml(row.metadata?.friendlyName || 'N/A')}</td></tr>`).join('')}
     </tbody></table></div><p class="help">Showing ${numberFormat.format(rows.length)} of ${numberFormat.format(count)} results.</p>`}
@@ -374,63 +377,18 @@ function renderMatrix(table, morphisms) {
   </tbody></table></div>`
 }
 
-function categoryVisualization(table, objects, morphisms) {
-  if (morphisms === 0) return ''
-  const width = 640
-  const height = 260
-  const centerX = width / 2
-  const centerY = height / 2
-  const radiusX = objects <= 2 ? 150 : 220
-  const radiusY = objects <= 2 ? 65 : 90
-  const positions = Array.from({ length: objects }, (_, index) => {
-    if (objects === 1) return { x: centerX, y: centerY }
-    const angle = -Math.PI / 2 + (2 * Math.PI * index) / objects
-    return { x: centerX + radiusX * Math.cos(angle), y: centerY + radiusY * Math.sin(angle) }
-  })
-  const groups = new Map()
-  for (let morphism = objects; morphism < morphisms; morphism += 1) {
-    const source = Array.from({ length: objects }, (_, i) => i).find(i => table[morphism][i] < morphisms)
-    const target = Array.from({ length: objects }, (_, i) => i).find(i => table[i][morphism] < morphisms)
-    if (source === undefined || target === undefined) continue
-    const key = `${source}-${target}`
-    const group = groups.get(key) || { source, target, members: [] }
-    group.members.push(morphism)
-    groups.set(key, group)
-  }
-  const edges = [...groups.values()].map(group => {
-    const source = positions[group.source]
-    const target = positions[group.target]
-    const label = group.members.join(', ')
-    if (group.source === group.target) {
-      const x = source.x
-      const y = source.y
-      return `<path d="M ${x - 10} ${y - 16} C ${x - 45} ${y - 70}, ${x + 45} ${y - 70}, ${x + 10} ${y - 16}" fill="none" stroke="currentColor" marker-end="url(#arrow)"/>
-        <text x="${x}" y="${y - 58}" text-anchor="middle">${label}</text>`
-    }
-    const labelX = (source.x + target.x) / 2
-    const labelY = (source.y + target.y) / 2 - 8
-    return `<line x1="${source.x}" y1="${source.y}" x2="${target.x}" y2="${target.y}" stroke="currentColor" marker-end="url(#arrow)"/>
-      <text x="${labelX}" y="${labelY}" text-anchor="middle">${label}</text>`
-  }).join('')
-  const nodes = positions.map((position, index) => `<g transform="translate(${position.x} ${position.y})"><circle r="18" fill="#3e78ad"/><text y="5" fill="white" text-anchor="middle">${index}</text></g>`).join('')
-  return `<div class="viz"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Category quiver">
-    <defs><marker id="arrow" viewBox="0 0 10 10" refX="29" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/></marker></defs>
-    <g font-family="system-ui, sans-serif" font-size="13">${edges}${nodes}</g>
-  </svg></div>`
-}
-
 function renderCategoryFacts(propositions, facts, factsAvailable) {
   if (!factsAvailable) {
-    return '<div class="notice info">Proposition values will be attached after the Supabase export.</div>'
+    return '<div class="notification is-info is-light">Proposition values are not included in this build.</div>'
   }
   const known = propositions.filter(proposition => (facts.knownMask & (2 ** proposition.bit)) !== 0)
   if (known.length === 0) return '<p class="muted">No proposition values are known for this category.</p>'
-  return `<div class="table-wrap"><table><thead><tr><th>Proposition</th><th>Value</th></tr></thead><tbody>
+  return `<div class="fact-list">
     ${known.map(proposition => {
       const value = (facts.valueMask & (2 ** proposition.bit)) !== 0
-      return `<tr><td><a href="/proposition/${encodeURIComponent(proposition.id)}" data-link>${escapeHtml(proposition.name)}</a></td><td>${value ? 'True' : 'False'}</td></tr>`
+      return `<a class="tag is-${value ? 'success' : 'danger'}" href="/proposition/${encodeURIComponent(proposition.name)}" data-link>${escapeHtml(proposition.name)}: ${value ? 'true' : 'false'}</a>`
     }).join('')}
-  </tbody></table></div>`
+  </div>`
 }
 
 async function renderCategory(morphisms, objects, index) {
@@ -451,20 +409,21 @@ async function renderCategory(morphisms, objects, index) {
       <div class="grid two">
         <div>
           <h2>Quick Reference</h2>
-          <div class="table-wrap"><table>
+          <div class="table-wrap"><table class="table is-striped is-fullwidth">
             <tr><th>Canonical ID</th><td>${label}</td></tr>
             <tr><th>Morphisms</th><td>${morphisms}</td></tr>
             <tr><th>Objects</th><td>${objects}</td></tr>
             <tr><th>Index</th><td>${index}</td></tr>
-            ${metadata ? `<tr><th>Legacy UUID</th><td><code>${escapeHtml(metadata.id)}</code></td></tr>` : ''}
             <tr><th>Name</th><td class="${metadata?.friendlyName ? '' : 'muted'}">${escapeHtml(metadata?.friendlyName || 'N/A')}</td></tr>
             <tr><th>Description</th><td class="${metadata?.description ? '' : 'muted'}">${escapeHtml(metadata?.description || 'N/A')}</td></tr>
           </table></div>
         </div>
         <div>
           <h2>Visualization</h2>
-          ${categoryVisualization(table, objects, morphisms)}
-          ${morphisms > 0 ? `<p class="help">Morphisms 0 through ${objects - 1} are identities, shown as objects.</p>` : ''}
+          ${morphisms > 0 ? `<div class="box viz-box">
+            <div class="viz-toolbar"><span class="help">Drag the objects to rearrange the quiver.</span><button class="button is-small is-light" type="button" data-reset-viz>Reset layout</button></div>
+            <div class="viz" id="category-viz"></div>
+          </div><p class="help">Morphisms 0 through ${objects - 1} are identities, shown as objects.</p>` : '<p>The empty category has no quiver.</p>'}
         </div>
       </div>
     </section>
@@ -474,24 +433,12 @@ async function renderCategory(morphisms, objects, index) {
         <div><h2>Facts</h2>${renderCategoryFacts(propositions, facts, manifest.factsAvailable)}</div>
       </div>
     </section>`
-}
-
-async function renderLegacyCategory(id) {
-  const manifest = await getManifest()
-  if (manifest.legacyIdsAvailable) {
-    const location = (await getLegacyIds())[id]
-    if (!location) return renderNotFound()
-    const path = categoryHref(location[0], location[1], location[2])
-    window.history.replaceState({}, '', path)
-    return renderCategory(location[0], location[1], location[2])
-  }
-  setTitle('Legacy category link')
-  app.innerHTML = `${hero('Legacy category link', 'dark')}
-    <section class="section container">
-      <div class="notice error">
-        The Supabase UUID map has not been imported into this migration build yet. This route will be preserved before production cutover.
-      </div>
-    </section>`
+  visualizationCleanup = mountCategoryVisualization(
+    document.querySelector('#category-viz'),
+    table,
+    objects,
+    morphisms,
+  )
 }
 
 async function renderStats() {
@@ -548,7 +495,7 @@ function renderSupport() {
   app.innerHTML = `${hero('Support', 'dark')}
     <section class="section container">
       <p>The static migration is intended to make normal website hosting free. Donations remain useful for domain registration and the computational work needed to extend the category database.</p>
-      <p><a class="button" href="https://ko-fi.com/B0B3DOCLE">Support SmallCategories on Ko-fi</a></p>
+      <p><a class="button is-dark" href="https://ko-fi.com/B0B3DOCLE">Support SmallCategories on Ko-fi</a></p>
     </section>`
 }
 
@@ -561,7 +508,7 @@ function renderSmallCat() {
 function renderNotFound() {
   setTitle('Not Found')
   app.innerHTML = `${hero('404 · Not Found', 'dark')}
-    <section class="section container"><p>The requested page <code>${escapeHtml(window.location.pathname)}</code> could not be found.</p><p><a class="button" href="/" data-link>Return home</a></p></section>`
+    <section class="section container"><p>The requested page <code>${escapeHtml(window.location.pathname)}</code> could not be found.</p><p><a class="button is-warning" href="/" data-link>Return home</a></p></section>`
 }
 
 async function renderRandom() {
@@ -575,10 +522,13 @@ async function renderRandom() {
 }
 
 async function renderRoute() {
+  visualizationCleanup()
+  visualizationCleanup = () => {}
   const generation = ++routeGeneration
   const path = window.location.pathname.replace(/\/+$/, '') || '/'
   setCurrentNavigation(path)
-  document.querySelector('#nav-links').classList.remove('open')
+  document.querySelector('#nav-links').classList.remove('is-active')
+  document.querySelector('.nav-toggle').classList.remove('is-active')
   document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false')
   app.innerHTML = '<section class="section container"><p class="loading">Loading…</p></section>'
   window.scrollTo({ top: 0, behavior: 'instant' })
@@ -595,10 +545,8 @@ async function renderRoute() {
     else if (path === '/random') await renderRandom()
     else {
       const canonical = /^\/category\/(\d+)\/(\d+)\/(\d+)$/.exec(path)
-      const legacy = /^\/category\/([^/]+)$/.exec(path)
       const proposition = /^\/proposition\/([^/]+)$/.exec(path)
       if (canonical) await renderCategory(Number(canonical[1]), Number(canonical[2]), Number(canonical[3]))
-      else if (legacy) await renderLegacyCategory(decodeURIComponent(legacy[1]))
       else if (proposition) await renderProposition(decodeURIComponent(proposition[1]))
       else renderNotFound()
     }
@@ -619,7 +567,8 @@ document.addEventListener('click', event => {
 
 document.querySelector('.nav-toggle').addEventListener('click', event => {
   const links = document.querySelector('#nav-links')
-  const open = links.classList.toggle('open')
+  const open = links.classList.toggle('is-active')
+  event.currentTarget.classList.toggle('is-active', open)
   event.currentTarget.setAttribute('aria-expanded', String(open))
 })
 

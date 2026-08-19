@@ -13,6 +13,7 @@ import {
 import { createInterface } from 'node:readline'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { build as bundle } from 'esbuild'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const SITE_DIR = resolve(SCRIPT_DIR, '..')
@@ -90,7 +91,7 @@ async function loadExport(exportDir) {
   await ensureDirectory(exportDir, 'Supabase export directory')
 
   const exportManifest = JSON.parse(await readFile(join(exportDir, 'export-manifest.json'), 'utf8'))
-  if (exportManifest.schemaVersion !== 1) {
+  if (exportManifest.schemaVersion !== 2) {
     throw new Error(`Unsupported export schema version: ${exportManifest.schemaVersion}`)
   }
   const propositions = JSON.parse(await readFile(join(exportDir, 'propositions.json'), 'utf8'))
@@ -98,13 +99,12 @@ async function loadExport(exportDir) {
     throw new Error('The export must contain an array of at most 32 propositions')
   }
   propositions.forEach((proposition, bit) => {
-    if (proposition.bit !== bit || typeof proposition.id !== 'string' || typeof proposition.name !== 'string') {
+    if (proposition.bit !== bit || typeof proposition.name !== 'string') {
       throw new Error(`Invalid proposition at bit ${bit}`)
     }
   })
 
   const recordsByKey = new Map()
-  const ids = new Set()
   const input = createInterface({
     input: createReadStream(join(exportDir, 'categories.ndjson'), { encoding: 'utf8' }),
     crlfDelay: Infinity,
@@ -114,12 +114,9 @@ async function loadExport(exportDir) {
     lineNumber += 1
     if (!line.trim()) continue
     const record = JSON.parse(line)
-    const requiredIntegers = [record.morphisms, record.objects, record.sourceIndex]
+    const requiredIntegers = [record.morphisms, record.objects]
     if (requiredIntegers.some(value => !Number.isInteger(value) || value < 0)) {
       throw new Error(`categories.ndjson:${lineNumber} has invalid category coordinates`)
-    }
-    if (typeof record.id !== 'string' || !/^[0-9a-f-]+$/i.test(record.id)) {
-      throw new Error(`categories.ndjson:${lineNumber} has an invalid category ID`)
     }
     if (typeof record.tableSha256 !== 'string' || !/^[0-9a-f]{64}$/i.test(record.tableSha256)) {
       throw new Error(`categories.ndjson:${lineNumber} has an invalid table digest`)
@@ -135,9 +132,7 @@ async function loadExport(exportDir) {
     }
     const key = categoryRecordKey(record.morphisms, record.objects, record.tableSha256)
     if (recordsByKey.has(key)) throw new Error(`Duplicate exported multiplication table at line ${lineNumber}`)
-    if (ids.has(record.id)) throw new Error(`Duplicate exported category ID at line ${lineNumber}`)
     recordsByKey.set(key, record)
-    ids.add(record.id)
   }
   if (recordsByKey.size !== exportManifest.categoryCount) {
     throw new Error(`Export manifest expected ${exportManifest.categoryCount} categories but found ${recordsByKey.size}`)
@@ -150,10 +145,9 @@ async function loadExport(exportDir) {
     propositions,
     recordsByKey,
     facts: [],
-    legacyIds: {},
     matchedCategories: 0,
+    metadataCategoryCount: 0,
     relationCount: 0,
-    remappedIndexes: 0,
   }
 }
 
@@ -196,9 +190,10 @@ async function compileCell(databaseDir, outputDir, filename, morphisms, objects,
         migration.recordsByKey.delete(key)
         migration.matchedCategories += 1
         migration.relationCount += countBits(record.knownMask)
-        if (record.sourceIndex !== count) migration.remappedIndexes += 1
-        migration.legacyIds[record.id] = [morphisms, objects, count]
-        metadata.push([count, record.id, record.friendlyName, record.description])
+        if (record.friendlyName || record.description) {
+          metadata.push([count, record.friendlyName, record.description])
+          migration.metadataCategoryCount += 1
+        }
         migration.facts.push(record.knownMask, record.valueMask)
       } else {
         migration.facts.push(0, 0)
@@ -284,7 +279,7 @@ async function build() {
   if (migration?.recordsByKey.size) {
     const examples = [...migration.recordsByKey.values()]
       .slice(0, 3)
-      .map(record => `${record.id} (${record.morphisms},${record.objects},${record.sourceIndex})`)
+      .map(record => `(${record.morphisms},${record.objects},${record.tableSha256.slice(0, 12)}…)`)
       .join(', ')
     throw new Error(
       `${migration.recordsByKey.size} exported categories could not be matched to canonical tables. ` +
@@ -301,21 +296,31 @@ async function build() {
     const facts = Buffer.alloc(migration.facts.length * 4)
     migration.facts.forEach((value, index) => facts.writeUInt32LE(value >>> 0, index * 4))
     await writeFile(join(TEMP_DIR, 'data', 'facts.bin'), facts)
-    await writeJson(join(TEMP_DIR, 'data', 'legacy-ids.json'), migration.legacyIds)
   }
 
   const manifest = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     categoryCount,
     propositionCount: migration?.propositions.length || 0,
     relationCount: migration?.relationCount || 0,
-    metadataCategoryCount: migration?.matchedCategories || 0,
+    metadataCategoryCount: migration?.metadataCategoryCount || 0,
     factsAvailable: Boolean(migration),
-    legacyIdsAvailable: Boolean(migration),
     cells,
   }
   await writeJson(join(TEMP_DIR, 'data', 'manifest.json'), manifest)
   await writeJson(join(TEMP_DIR, 'data', 'propositions.json'), migration?.propositions || [])
+  await cp(resolve(SITE_DIR, 'node_modules/bulma/css/bulma.min.css'), join(TEMP_DIR, 'bulma.min.css'))
+  await bundle({
+    entryPoints: [join(SOURCE_DIR, 'app.js')],
+    outfile: join(TEMP_DIR, 'app.js'),
+    bundle: true,
+    format: 'esm',
+    minify: true,
+    sourcemap: true,
+    target: ['es2022'],
+    allowOverwrite: true,
+  })
+  await rm(join(TEMP_DIR, 'visualization.js'), { force: true })
 
   await rm(FINAL_DIR, { recursive: true, force: true })
   await rename(TEMP_DIR, FINAL_DIR)
@@ -327,12 +332,9 @@ async function build() {
   console.log(`Built ${categoryCount.toLocaleString()} categories from ${sourceBytes.reduce((a, b) => a + b, 0).toLocaleString()} source bytes.`)
   if (migration) {
     console.log(
-      `Matched ${migration.matchedCategories.toLocaleString()} exported UUIDs and ` +
+      `Matched ${migration.matchedCategories.toLocaleString()} exported categories and ` +
       `${migration.relationCount.toLocaleString()} facts by multiplication-table fingerprint.`,
     )
-    if (migration.remappedIndexes) {
-      console.log(`Safely remapped ${migration.remappedIndexes.toLocaleString()} categories whose indexes changed.`)
-    }
   }
   console.log(`Output: ${FINAL_DIR}`)
 }

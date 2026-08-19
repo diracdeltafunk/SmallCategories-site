@@ -4,10 +4,11 @@ This directory is a parallel, static replacement for the current Express/Eta app
 
 ## Build
 
-The build has no npm dependencies. By default it reads the adjacent `SmallCategories` checkout:
+Install the pinned front-end/build dependencies, then build. By default the compiler reads the adjacent `SmallCategories` checkout:
 
 ```sh
 cd static-site
+npm ci
 npm run build
 ```
 
@@ -35,7 +36,6 @@ The preview is available at `http://127.0.0.1:8000`. Cloudflare Pages supplies t
 
 The basic build uses the canonical text database and supports counts, statistics, browsing, numeric queries, and canonical category detail routes. Before retiring Supabase, create a read-only export containing:
 
-- existing category UUIDs;
 - friendly names and descriptions;
 - proposition definitions;
 - proposition truth values.
@@ -69,7 +69,7 @@ Once the verified export has been preserved in the adjacent database repository,
 npm run build:production
 ```
 
-The compiler matches exported database rows to canonical multiplication tables by SHA-256 fingerprint, not by a potentially stale numeric index. It fails if any exported category is missing or any fact count differs. The resulting site preserves legacy UUID URLs and supports proposition queries entirely in the browser.
+The compiler matches exported database rows to canonical multiplication tables by SHA-256 fingerprint. It fails if any exported category is missing or any fact count differs. Neither category nor proposition UUIDs are retained: public category routes use `SmallCat(n,k,i)` coordinates and proposition routes use proposition names. Proposition queries run entirely in the browser.
 
 The export is a migration artifact, not a full Postgres backup. Also capture a logical schema/data backup before cancelling Supabase. Do not cancel Supabase until the export and backup have been preserved, the generated site has been compared with production, DNS has been cut over, and the old site has remained available during a rollback window.
 
@@ -84,7 +84,7 @@ npm run build:cloudflare
 Use these Pages Git-integration settings after both migration branches have been merged to `master`:
 
 - Framework preset: **None**
-- Build command: `npm --prefix static-site run build:cloudflare`
+- Build command: `npm --prefix static-site ci && npm --prefix static-site run build:cloudflare`
 - Build output directory: `static-site/dist`
 - Root directory: leave blank
 

@@ -5,22 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Browse and query a database of small finite categories.">
   <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/bulma.min.css">
   <link rel="stylesheet" href="/styles.css">
   <title>SmallCats</title>
 </head>
 <body>
-  <header class="site-header">
-    <nav class="nav container" aria-label="Main navigation">
-      <a class="brand" href="/" data-link>😺 SmallCategories <small>Static preview</small></a>
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
-      <div class="nav-links" id="nav-links">
-        <a href="/random" data-link aria-label="Random category">Shuffle</a>
-        <a href="/cats" data-link>Categories</a>
-        <a href="/props" data-link>Propositions</a>
-        <a href="/query" data-link>Query</a>
-        <a href="/stats" data-link>Stats</a>
-        <a href="/about" data-link>About</a>
-        <a href="/support" data-link>Support</a>
+  <header>
+    <nav class="navbar has-shadow" aria-label="Main navigation">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item brand" href="/" data-link>😺 SmallCategories <span class="tag is-danger is-light">Beta</span></a>
+          <button class="navbar-burger nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="nav-links">
+            <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="navbar-menu nav-links" id="nav-links">
+          <div class="navbar-end">
+            <a class="navbar-item" href="/random" data-link aria-label="Random category">Shuffle</a>
+            <a class="navbar-item" href="/cats" data-link>Categories</a>
+            <a class="navbar-item" href="/props" data-link>Propositions</a>
+            <a class="navbar-item" href="/query" data-link>Query</a>
+            <a class="navbar-item" href="/stats" data-link>Stats</a>
+            <a class="navbar-item" href="/about" data-link>About</a>
+            <a class="navbar-item" href="/support" data-link>Support</a>
+          </div>
+        </div>
       </div>
     </nav>
   </header>
@@ -29,7 +38,7 @@
     <section class="section container"><p class="loading">Loading SmallCats…</p></section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="footer site-footer">
     <div class="container">
       By <a href="https://benspitz.com">Ben Spitz</a>
       · <a href="https://github.com/diracdeltafunk/SmallCategories-site">Source</a>
