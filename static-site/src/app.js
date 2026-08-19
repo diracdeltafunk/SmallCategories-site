@@ -500,15 +500,6 @@ function renderAbout() {
     </section>`
 }
 
-function renderSupport() {
-  setTitle('Support')
-  app.innerHTML = `${hero('Support', 'dark', 'mug-saucer')}
-    <section class="section container">
-      <p>The static migration is intended to make normal website hosting free. Donations remain useful for domain registration and the computational work needed to extend the category database.</p>
-      <p><a class="button is-dark" href="https://ko-fi.com/B0B3DOCLE">${iconText('mug-saucer', 'Support SmallCategories on Ko-fi')}</a></p>
-    </section>`
-}
-
 function renderSmallCat() {
   setTitle('Small Cat')
   app.innerHTML = `${hero('Small Cat', '', 'paw')}
@@ -550,7 +541,6 @@ async function renderRoute() {
     else if (path === '/query' || path === '/query_mobile') await renderQuery()
     else if (path === '/stats') await renderStats()
     else if (path === '/about') renderAbout()
-    else if (path === '/support') renderSupport()
     else if (path === '/smolcats') renderSmallCat()
     else if (path === '/random') await renderRandom()
     else {

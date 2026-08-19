@@ -79,8 +79,10 @@ try {
   const styleBundleName = /href="\/(styles-[A-Z0-9]+\.css)"/.exec(indexHtml)?.[1]
   assert(appBundleName && styleBundleName, 'fingerprinted assets were not linked from the app shell')
   assert(indexHtml.includes('fa-solid fa-shuffle'), 'the original navbar icon was not retained')
+  assert(!indexHtml.includes('/support') && !indexHtml.toLowerCase().includes('ko-fi'), 'retired support links leaked into the app shell')
   const bundledApp = await readFile(join(DIST_DIR, appBundleName), 'utf8')
   assert(!bundledApp.includes('legacy-ids'), 'legacy ID route support leaked into the browser bundle')
+  assert(!bundledApp.includes('/support') && !bundledApp.toLowerCase().includes('ko-fi'), 'retired support page leaked into the browser bundle')
   assert(bundledApp.includes('"paw"') && bundledApp.includes('"check"'), 'page icons were not included in the browser bundle')
   const outputFiles = await readdir(DIST_DIR)
   assert(outputFiles.some(filename => /^fa-solid-900-[A-Z0-9]+\.woff2$/.test(filename)), 'the solid icon font was not emitted')

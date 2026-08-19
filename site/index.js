@@ -175,10 +175,6 @@ app.get('/about', (req, res) => {
   res.send(eta.render("./about"))
 })
 
-app.get('/support', (req, res) => {
-  res.send(eta.render("./support"))
-})
-
 app.get('/random', async (req, res) => {
   const { data, error } = await supabase
     .rpc('random_cat_id')

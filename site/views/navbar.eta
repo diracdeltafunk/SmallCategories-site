@@ -55,9 +55,6 @@
             <a class="navbar-item" href="/about">
                 About
             </a>
-            <a class="navbar-item" href="/support">
-                Support
-            </a>
         </div>
     </div>
 </nav>
