@@ -2,7 +2,7 @@
 
 This repository contains the static website for [smallcats.info](https://smallcats.info), a browser and query interface for the [SmallCategories database](https://github.com/diracdeltafunk/SmallCategories).
 
-The application lives in [`static-site`](static-site). Its production build combines the site source with the canonical multiplication tables and preserved public metadata from an adjacent `SmallCategories` checkout. It runs entirely in the browser and is hosted by Cloudflare Pages; it has no application server or live database dependency.
+The application lives in [`static-site`](static-site), while [`website-data`](website-data) preserves the public metadata and proposition values used by the build. A production build combines those files with the canonical multiplication tables from an adjacent `SmallCategories` checkout. It runs entirely in the browser and is hosted by Cloudflare Pages; it has no application server or live database dependency.
 
 ## Develop
 

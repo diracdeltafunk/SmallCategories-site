@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
+const WEBSITE_DATA_DIR = resolve(SCRIPT_DIR, '../../website-data')
 const DATABASE_REPOSITORY = process.env.SMALLCATS_DATABASE_REPOSITORY ||
   'https://github.com/diracdeltafunk/SmallCategories.git'
 const DATABASE_REF = process.env.SMALLCATS_DATABASE_REF || 'master'
@@ -33,7 +34,7 @@ try {
   await run(process.execPath, [
     resolve(SCRIPT_DIR, 'build.mjs'),
     '--database', join(checkout, 'database'),
-    '--website-data', join(checkout, 'website-data'),
+    '--website-data', WEBSITE_DATA_DIR,
   ])
 } finally {
   await rm(temporary, { recursive: true, force: true })

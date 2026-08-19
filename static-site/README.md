@@ -14,10 +14,10 @@ The site retains the original Bulma and Font Awesome visual language. Its dragga
 
 ## Build data
 
-The production build reads two directories from the adjacent [SmallCategories](https://github.com/diracdeltafunk/SmallCategories) checkout:
+The production build combines two inputs:
 
-- `database/` contains the canonical multiplication tables;
-- `website-data/` contains preserved public names, descriptions, proposition definitions, and proposition values.
+- the adjacent [SmallCategories](https://github.com/diracdeltafunk/SmallCategories) checkout's `database/` directory contains the canonical multiplication tables;
+- this repository's `../website-data/` directory contains preserved public names, descriptions, proposition definitions, and proposition values.
 
 The compiler joins metadata to canonical tables by SHA-256 fingerprint and validates the snapshot's category, proposition, fact, and table counts. Public routes use `SmallCat(n,k,i)` coordinates and proposition names; no provider-specific identifiers or credentials are compiled into the site.
 
@@ -33,7 +33,7 @@ With data in another location, invoke the compiler directly:
 ```sh
 node scripts/build.mjs \
   --database /path/to/SmallCategories/database \
-  --website-data /path/to/SmallCategories/website-data
+  --website-data /path/to/SmallCategories-site/website-data
 ```
 
 `npm run build` is useful for a tables-only development build; it omits public metadata and proposition facts. In either mode, `dist/` is generated output and is ignored by Git. Because the compiler reads the database working tree, local database edits are reflected in the output.
