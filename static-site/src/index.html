@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse and query a database of small finite categories.">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <title>SmallCats</title>
+</head>
+<body>
+  <header>
+    <nav class="navbar has-shadow" aria-label="Main navigation">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item brand" href="/" data-link>😺 SmallCategories <span class="tag is-danger is-light">Beta</span></a>
+          <button class="navbar-burger nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="nav-links">
+            <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="navbar-menu nav-links" id="nav-links">
+          <div class="navbar-end">
+            <a class="navbar-item" href="/random" data-link aria-label="Random category"><span class="icon"><i class="fa-solid fa-shuffle" aria-hidden="true"></i></span></a>
+            <a class="navbar-item" href="/cats" data-link>Categories</a>
+            <a class="navbar-item" href="/props" data-link>Propositions</a>
+            <a class="navbar-item" href="/query" data-link>Query</a>
+            <a class="navbar-item" href="/stats" data-link>Stats</a>
+            <a class="navbar-item" href="/about" data-link>About</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="app" tabindex="-1">
+    <section class="section container"><p class="loading">Loading SmallCats…</p></section>
+  </main>
+
+  <footer class="footer site-footer">
+    <div class="container">
+      By <a href="https://benspitz.com">Ben Spitz</a>
+      · <a href="https://github.com/diracdeltafunk/SmallCategories-site"><span class="icon-text"><span class="icon"><i class="fa-brands fa-github" aria-hidden="true"></i></span><span>Source</span></span></a>
+    </div>
+  </footer>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

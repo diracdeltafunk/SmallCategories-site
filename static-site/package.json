@@ -1,0 +1,23 @@
+{
+  "name": "smallcats-static-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:export": "node scripts/build.mjs --export export",
+    "build:production": "node scripts/build.mjs --export ../../SmallCategories/website-data",
+    "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "export:supabase": "python3 scripts/export_supabase.py",
+    "check": "node --check src/app.js && node --check scripts/build.mjs && node --check scripts/build-cloudflare.mjs && node --check scripts/serve.mjs && node --check scripts/test-build.mjs && python3 -m py_compile scripts/export_supabase.py",
+    "test": "node scripts/test-build.mjs",
+    "preview": "node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "6.4.0",
+    "bulma": "0.9.4",
+    "d3-drag": "3.0.0",
+    "d3-force": "3.0.0",
+    "d3-selection": "3.0.0",
+    "esbuild": "0.25.9"
+  }
+}

@@ -1,0 +1,145 @@
+@import "bulma/css/bulma.min.css";
+@import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
+@import "@fortawesome/fontawesome-free/css/solid.min.css";
+@import "@fortawesome/fontawesome-free/css/brands.min.css";
+
+:root {
+  color-scheme: light;
+  --smallcats-blue: #43779f;
+  --smallcats-muted: #6b7280;
+  --smallcats-border: #dbdbdb;
+}
+
+html { min-height: 100%; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main { flex: 1; }
+#app:focus { outline: none; }
+.home-hero { min-height: calc(100vh - 9rem); }
+.home-hero .notification { max-width: 62rem; }
+.icon-notification { display: flex; align-items: center; gap: 1rem; }
+
+.brand {
+  gap: 0.55rem;
+  font-weight: 700;
+}
+
+.nav-links a[aria-current="page"] {
+  background: #f5f5f5;
+  color: #485fc7;
+}
+
+.hero .title { color: inherit; }
+.section + .section { padding-top: 0; }
+.section h2 { margin-bottom: 1rem; font-size: 1.5rem; font-weight: 600; }
+.lead { max-width: 70ch; font-size: 1.15rem; }
+.muted, .help, .loading { color: var(--smallcats-muted); }
+.help { font-size: 0.9rem; }
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.field { display: grid; gap: 0.35rem; }
+.field label, fieldset legend { font-weight: 600; }
+
+input[type="number"], select {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #b5b5b5;
+  border-radius: 4px;
+  background: white;
+  color: #363636;
+  font: inherit;
+}
+
+input:focus, select:focus {
+  border-color: #485fc7;
+  box-shadow: 0 0 0 0.125em rgba(72, 95, 199, 0.25);
+  outline: none;
+}
+
+fieldset {
+  min-width: 0;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--smallcats-border);
+  border-radius: 4px;
+}
+
+.checkboxes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 1rem;
+}
+
+.checkboxes label { display: flex; gap: 0.45rem; align-items: baseline; }
+
+.table-wrap { overflow-x: auto; }
+.table-wrap table { width: 100%; background: white; }
+.table-wrap th, .table-wrap td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--smallcats-border);
+  text-align: left;
+  vertical-align: top;
+}
+.table-wrap th { font-weight: 600; }
+.matrix { width: auto !important; min-width: 20rem; border-collapse: collapse; }
+.matrix th, .matrix td { min-width: 2.4rem; border: 1px solid var(--smallcats-border); text-align: center; }
+.undefined { color: #9ca3af; }
+.impossible { background: #f1f1f1; }
+.stats-table td, .stats-table th { font-variant-numeric: tabular-nums; }
+.stats-help { margin-top: 0.75rem; text-wrap: wrap; }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fact-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.fact-list .tag { height: auto; min-height: 2em; padding: 0.35em 0.75em; text-decoration: none; }
+
+.viz-box { padding: 0.75rem; }
+.viz-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.viz { min-height: 260px; overflow: hidden; border: 1px solid var(--smallcats-border); border-radius: 4px; background: #fff; }
+.viz svg { display: block; width: 100%; min-height: 260px; touch-action: none; }
+.viz-links path, .viz-loops path { fill: none; stroke: #363636; stroke-width: 1.25; }
+.viz-links text, .viz-loops text { fill: #363636; stroke: white; stroke-width: 4px; paint-order: stroke; text-anchor: middle; font-size: 13px; }
+.viz-nodes { cursor: grab; }
+.viz-nodes:active { cursor: grabbing; }
+.viz-nodes circle { fill: var(--smallcats-blue); stroke: white; stroke-width: 1.5; }
+.viz-nodes text { fill: white; text-anchor: middle; pointer-events: none; font-size: 13px; font-weight: 600; }
+
+.site-footer { padding: 2rem 1.5rem; text-align: center; }
+
+@media (max-width: 768px) {
+  .grid.two, .form-grid { grid-template-columns: 1fr; }
+  .checkboxes { grid-template-columns: 1fr; }
+  .section { padding: 2rem 1rem; }
+  .viz-toolbar { align-items: flex-start; flex-direction: column; }
+}
