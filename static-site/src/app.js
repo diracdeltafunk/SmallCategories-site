@@ -467,25 +467,31 @@ async function renderStats() {
       columnTotals[objects] += count
       const impossible = morphisms < objects || (objects === 0 && morphisms > 0)
       const stable = count > 0 && 2 * morphisms <= 3 * objects
-      cells.push(`<td class="number ${impossible ? 'impossible' : ''} ${stable ? 'stable' : ''}">${count || ''}</td>`)
+      cells.push(`<td class="${impossible ? 'impossible' : ''} ${stable ? 'has-text-success' : ''}">${count || ''}</td>`)
     }
-    rows.push(`<tr><th class="number">${morphisms}</th>${cells.join('')}<th class="number">${numberFormat.format(rowTotal)}</th></tr>`)
+    rows.push(`<tr><th>${morphisms}</th>${cells.join('')}<th>${numberFormat.format(rowTotal)}</th></tr>`)
   }
   setTitle('Statistics')
   app.innerHTML = `${hero('Statistics', 'green', 'chart-simple')}
-    <section class="section container">
-      <div class="grid three">
-        <div class="card"><span class="muted">Categories</span><strong class="stat">${numberFormat.format(manifest.categoryCount)}</strong></div>
-        <div class="card"><span class="muted">Propositions</span><strong class="stat">${numberFormat.format(manifest.propositionCount)}</strong></div>
-        <div class="card"><span class="muted">Known facts</span><strong class="stat">${numberFormat.format(manifest.relationCount || 0)}</strong></div>
+    <section class="section">
+      <div class="level">
+        <div class="level-item has-text-centered"><div><p class="heading">Categories</p><p class="title">${numberFormat.format(manifest.categoryCount)}</p></div></div>
+        <div class="level-item has-text-centered"><div><p class="heading">Propositions</p><p class="title">${numberFormat.format(manifest.propositionCount)}</p></div></div>
+        <div class="level-item has-text-centered"><div><p class="heading">Prop. Values</p><p class="title">${numberFormat.format(manifest.relationCount || 0)}</p></div></div>
       </div>
     </section>
     <section class="section container">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Morphisms ↓<br>Objects →</th>${Array.from({ length: maxObjects + 1 }, (_, i) => `<th class="number">${i}</th>`).join('')}<th class="number">Total</th></tr></thead>
-        <tbody>${rows.join('')}<tr><th>Total</th>${columnTotals.map(total => `<th class="number">${numberFormat.format(total)}</th>`).join('')}<th class="number">${numberFormat.format(manifest.categoryCount)}</th></tr></tbody>
+      <div class="table-container"><table class="table is-bordered stats-table">
+        <thead><tr><th>Objects →<br>Morphisms ↓</th>${Array.from({ length: maxObjects + 1 }, (_, i) => `<th>${i}</th>`).join('')}<th>Total</th></tr></thead>
+        <tbody>${rows.join('')}<tr><th>Total</th>${columnTotals.map(total => `<th>${numberFormat.format(total)}</th>`).join('')}<th>${numberFormat.format(manifest.categoryCount)}</th></tr></tbody>
       </table></div>
-      <p class="help">Every displayed count is compiled directly from the canonical category files used for this build.</p>
+      <p class="help stats-help">
+        This table shows the number of categories in this build with a given number of objects and morphisms.
+        <br>Each nonempty cell is complete: the database contains every isomorphism class of categories with the corresponding numbers of objects and morphisms.
+        <br>There are no categories with fewer morphisms than objects, or with zero objects and more than zero morphisms, so these cells are blank and grayed out.
+        <br>Other blank cells indicate that this build does not yet contain categories with those numbers of objects and morphisms, even though such categories exist.
+        <br>Green cells indicate a stable value; see <a href="https://oeis.org/A125701">A125701</a>.
+      </p>
     </section>`
 }
 
