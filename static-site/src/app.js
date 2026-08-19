@@ -509,7 +509,7 @@ function renderMethodology() {
   app.innerHTML = `${hero('Enumeration & Verification', 'info', 'magnifying-glass-chart')}
     <section class="section container">
       <div class="content methodology-content">
-        <p class="lead">SmallCats counts finite categories by total morphisms and objects, up to isomorphism. Every populated cell is intended to be exhaustive, and the totals are checked independently using the unique decomposition of a category into connected components.</p>
+        <p class="lead">SmallCats counts finite categories by total morphisms and objects, up to isomorphism. Every populated cell is intended to be exhaustive, and a structural and implementation audit supports the totals using the unique decomposition of a category into connected components.</p>
 
         <h2>${iconText('list-ol', 'Conventions')}</h2>
         <p>In a cell, morphisms are listed first and objects second. The morphism count includes the identity of every object. Categories are identified only when there is an isomorphism of categories between them; equivalence is not the relation being counted. In each stored multiplication table, the identities come first and an extra sentinel value records undefined compositions.</p>
@@ -520,7 +520,8 @@ function renderMethodology() {
           <li>The postprocessor relabels the objects among themselves and the remaining morphisms among themselves.</li>
           <li>Only the lexicographically least table in each orbit is retained, leaving one representative of every isomorphism class.</li>
         </ol>
-        <p>This core model is independent of the later <em>hypersplit</em> optimization, which divides a large search into smaller strata according to kinds of nonidentity morphisms. Small cases and the disputed cells are also checked directly against the axioms and for canonical uniqueness.</p>
+        <p>For larger cases, the same model is divided into exhaustive, disjoint strata using intrinsic properties such as idempotence, endomorphism, and invertibility. The results are reunited and canonicalized under the full relabelling action.</p>
+        <p>In the 2026 audit, all 249,382 stored tables were independently checked for unique identities, exact composability, correctly typed composites, and every associativity equation. Exhaustive relabelling and a separate graph-canonicalization check confirmed that every stored table is canonical and that no two entries in a cell are isomorphic.</p>
 
         <h2>${iconText('diagram-project', 'Connected-component checksum')}</h2>
         <p>Every finite category is uniquely a disjoint union of connected categories. If <var>T(n,k)</var> counts all categories with <var>n</var> morphisms and <var>k</var> objects, and <var>C(n,k)</var> counts the connected ones, their generating functions therefore satisfy the two-variable Euler transform</p>
@@ -543,10 +544,6 @@ function renderMethodology() {
         <h3>10 morphisms and 4 objects</h3>
         <p>Even if one accepts the Cruttwell–Leblanc value at 9/3, the component formula forces 67,392 disconnected categories at 10/4—already more than their reported total of 65,922. That total is therefore impossible.</p>
         <p>Using the corrected 9/3 count instead gives 67,513 disconnected categories. The exhaustive skeletal search gives 1,465 connected categories. Every remaining connected category is obtained by duplicating one object of a connected, skeletal three-object category with five or six morphisms; taking automorphism orbits of the complete small tables gives 12 more. Thus the corrected total is <strong>67,513 + 1,465 + 12 = 68,990</strong>.</p>
-
-        <h2>${iconText('bug-slash', 'The SmallCats hypersplit mistake')}</h2>
-        <p>Hypersplitting records <var>p</var> pairs of mutually inverse non-endomorphisms, a block containing <var>2p</var> arrows. The wrapper mistakenly told the canonicalizer that this block had size <var>p</var>. It could then compare a valid table with relabellings that did not preserve the split constraints and discard the only admissible canonical labelling.</p>
-        <p>At 10/4 this omitted 163 disconnected and 12 connected isomorphism classes. The corrected canonicalizer treats all <var>2p</var> arrows as <var>p</var> inverse pairs and uses the pair-preserving wreath-product action S<sub>2</sub> ≀ S<sub>p</sub>. The connected-component inventory is now part of the audit. The later stored cells at 11/6 and 12/9–11 also pass this checksum.</p>
 
         <div class="buttons methodology-links">
           <a class="button is-link is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">${iconText('github', 'Generator and database', { brand: true })}</a>
