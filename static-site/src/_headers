@@ -1,4 +1,13 @@
-/data/v3/*
+/data/v3/categories/*
+  Cache-Control: public, max-age=3600
+
+/data/v3/metadata/*
+  Cache-Control: public, max-age=3600
+
+/data/v3/facts.bin
+  Cache-Control: public, max-age=3600
+
+/data/v3/propositions.json
   Cache-Control: public, max-age=3600
 
 /data/v3/manifest.json
