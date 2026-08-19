@@ -13,6 +13,7 @@
     "preview": "node scripts/serve.mjs"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "6.4.0",
     "bulma": "0.9.4",
     "d3-drag": "3.0.0",
     "d3-force": "3.0.0",

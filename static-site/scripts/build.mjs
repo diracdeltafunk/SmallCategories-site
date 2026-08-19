@@ -320,8 +320,13 @@ async function build() {
     },
     outdir: TEMP_DIR,
     entryNames: '[name]-[hash]',
+    assetNames: '[name]-[hash]',
     bundle: true,
     format: 'esm',
+    loader: {
+      '.ttf': 'file',
+      '.woff2': 'file',
+    },
     minify: true,
     sourcemap: true,
     target: ['es2022'],

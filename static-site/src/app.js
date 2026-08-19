@@ -19,6 +19,14 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;')
 }
 
+function icon(name, { brand = false, large = false, animation = '' } = {}) {
+  return `<span class="icon${large ? ' is-large' : ''}"><i class="fa-${brand ? 'brands' : 'solid'} fa-${name}${large ? ' fa-2x' : ''}${animation ? ` fa-${animation}` : ''}" aria-hidden="true"></i></span>`
+}
+
+function iconText(name, text, options) {
+  return `<span class="icon-text">${icon(name, options)}<span>${text}</span></span>`
+}
+
 function dataUrl(path) {
   return new URL(`/data/v3/${path}`, window.location.origin).toString()
 }
@@ -104,9 +112,10 @@ function setTitle(title) {
   document.title = title ? `${title} · SmallCats` : 'SmallCats'
 }
 
-function hero(title, tone = '') {
+function hero(title, tone = '', iconName = '') {
   const bulmaTone = { teal: 'primary', green: 'success', dark: 'dark' }[tone] || tone || 'link'
-  return `<section class="hero is-${bulmaTone} is-small"><div class="hero-body"><div class="container"><h1 class="title">${title}</h1></div></div></section>`
+  const heading = iconName ? iconText(iconName, title) : title
+  return `<section class="hero is-${bulmaTone} is-small"><div class="hero-body"><div class="container"><h1 class="title">${heading}</h1></div></div></section>`
 }
 
 function setCurrentNavigation(path) {
@@ -121,7 +130,7 @@ function setCurrentNavigation(path) {
 function showError(error) {
   console.error(error)
   setTitle('Error')
-  app.innerHTML = `${hero('Something went wrong', 'dark')}
+  app.innerHTML = `${hero('Something went wrong', 'dark', 'triangle-exclamation')}
     <section class="section container">
       <div class="notification is-danger is-light">
         <strong>The static SmallCats preview could not load this page.</strong>
@@ -145,14 +154,15 @@ async function renderHome() {
         <h1 class="title">😺 Welcome to SmallCategories!</h1>
         <p class="lead block">The SmallCategories Project is a database of isomorphism classes of small finite categories.</p>
         <p class="block">There are <strong>${numberFormat.format(manifest.categoryCount)}</strong> categories in this build, including every category with at most seven morphisms. Browsing and queries run entirely in your browser.</p>
-        <div class="notification is-warning is-light">
-          SmallCats.info is in active development. The database and functionality are not yet complete, and all data is subject to change.
+        <div class="notification is-warning is-light icon-notification">
+          ${icon('triangle-exclamation', { large: true })}
+          <span>SmallCats.info is in active development. The database and functionality are not yet complete, and all data is subject to change.</span>
         </div>
         ${manifest.factsAvailable ? '' : `<div class="notification is-info is-light">Proposition data is not included in this build.</div>`}
         <div class="buttons">
-          <a class="button is-link is-light is-outlined" href="/random" data-link>Random</a>
-          <a class="button is-primary is-light is-outlined" href="/query" data-link>Query</a>
-          <a class="button is-info is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">Database Info</a>
+          <a class="button is-link is-light is-outlined" href="/random" data-link>${iconText('shuffle', 'Random')}</a>
+          <a class="button is-primary is-light is-outlined" href="/query" data-link>${iconText('magnifying-glass', 'Query')}</a>
+          <a class="button is-info is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">${iconText('github', 'Database Info', { brand: true })}</a>
         </div>
       </div>
       </div>
@@ -164,7 +174,7 @@ async function renderCategories() {
   const morphismCounts = [...new Set(manifest.cells.map(cell => cell.morphisms))]
 
   setTitle('Categories')
-  app.innerHTML = `${hero('Browse Categories')}
+  app.innerHTML = `${hero('Browse Categories', '', 'list')}
     <section class="section container">
       <div class="grid two">
         <form class="box" id="browse-form">
@@ -227,7 +237,7 @@ async function renderBrowseResults(cell, page) {
       <button class="button is-link is-light" type="button" data-page="${page + 1}" ${page === pages ? 'disabled' : ''}>Next</button>
     </div>` : ''}
     <div class="table-wrap"><table>
-      <thead><tr><th>ID</th><th>Name</th></tr></thead>
+      <thead><tr><th>${iconText('link', 'ID')}</th><th>Name</th></tr></thead>
       <tbody>${rows.map(index => `<tr>
         <td><a href="${categoryHref(cell.morphisms, cell.objects, index)}" data-link>${categoryLabel(cell.morphisms, cell.objects, index)}</a></td>
         <td class="${metadata.get(index)?.friendlyName ? '' : 'muted'}">${escapeHtml(metadata.get(index)?.friendlyName || 'N/A')}</td>
@@ -241,11 +251,11 @@ async function renderBrowseResults(cell, page) {
 async function renderPropositions() {
   const propositions = await getPropositions()
   setTitle('Propositions')
-  app.innerHTML = `${hero('Browse Propositions')}
+  app.innerHTML = `${hero('Browse Propositions', '', 'toggle-on')}
     <section class="section container">
       ${propositions.length === 0
         ? '<div class="notification is-info is-light">No proposition definitions are included in this build.</div>'
-        : `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
+        : `<div class="table-wrap"><table><thead><tr><th>${iconText('link', 'Name')}</th><th>Description</th></tr></thead><tbody>
           ${propositions.map(prop => `<tr><td><a href="/proposition/${encodeURIComponent(prop.name)}" data-link>${escapeHtml(prop.name)}</a></td><td>${escapeHtml(prop.description || '')}</td></tr>`).join('')}
         </tbody></table></div>`}
     </section>`
@@ -256,7 +266,7 @@ async function renderProposition(name) {
   const proposition = propositions.find(item => item.name === name)
   if (!proposition) return renderNotFound()
   setTitle(proposition.name)
-  app.innerHTML = `${hero(`Proposition ${escapeHtml(proposition.name)}`, 'green')}
+  app.innerHTML = `${hero(`Proposition ${escapeHtml(proposition.name)}`, 'green', 'paw')}
     <section class="section container">
       <div class="box">
         <dl>
@@ -277,7 +287,7 @@ function boundValue(formData, name, fallback) {
 async function renderQuery() {
   const [manifest, propositions] = await Promise.all([getManifest(), getPropositions()])
   setTitle('Query')
-  app.innerHTML = `${hero('Query', 'teal')}
+  app.innerHTML = `${hero('Query', 'teal', 'magnifying-glass')}
     <section class="section container">
       <form class="box" id="query-form">
         <div class="form-grid">
@@ -290,7 +300,7 @@ async function renderQuery() {
           <fieldset><legend>Satisfying</legend><div class="checkboxes">${propositions.map(prop => `<label><input type="checkbox" name="true_prop" value="${prop.bit}"> ${escapeHtml(prop.name)}</label>`).join('')}</div></fieldset>
           <fieldset><legend>Not satisfying</legend><div class="checkboxes">${propositions.map(prop => `<label><input type="checkbox" name="false_prop" value="${prop.bit}"> ${escapeHtml(prop.name)}</label>`).join('')}</div></fieldset>
         </div>` : '<div class="notification is-info is-light">This build supports numeric queries only because it contains no proposition data.</div>'}
-        <p><button class="button is-primary" type="submit">Search</button></p>
+        <p><button class="button is-primary" type="submit">${iconText('magnifying-glass', 'Search')}</button></p>
       </form>
       <div id="query-results"></div>
     </section>`
@@ -355,7 +365,7 @@ async function renderQueryResults(manifest, propositions, bounds, truePropBits, 
     metadata: await getCategoryMetadata(row, row.index),
   })))
   document.querySelector('#query-results').innerHTML = `<div class="box">
-    ${count === 0 ? '<p>No categories matched.</p>' : `<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th></tr></thead><tbody>
+    ${count === 0 ? '<p>No categories matched.</p>' : `<div class="table-wrap"><table><thead><tr><th>${iconText('link', 'ID')}</th><th>Name</th></tr></thead><tbody>
       ${namedRows.map(row => `<tr><td><a href="${categoryHref(row.morphisms, row.objects, row.index)}" data-link>${categoryLabel(row.morphisms, row.objects, row.index)}</a></td><td class="${row.metadata?.friendlyName ? '' : 'muted'}">${escapeHtml(row.metadata?.friendlyName || 'N/A')}</td></tr>`).join('')}
     </tbody></table></div><p class="help">Showing ${numberFormat.format(rows.length)} of ${numberFormat.format(count)} results.</p>`}
   </div>`
@@ -386,7 +396,7 @@ function renderCategoryFacts(propositions, facts, factsAvailable) {
   return `<div class="fact-list">
     ${known.map(proposition => {
       const value = (facts.valueMask & (2 ** proposition.bit)) !== 0
-      return `<a class="tag is-${value ? 'success' : 'danger'}" href="/proposition/${encodeURIComponent(proposition.name)}" data-link>${escapeHtml(proposition.name)}: ${value ? 'true' : 'false'}</a>`
+      return `<a class="tag is-${value ? 'success' : 'danger'}" href="/proposition/${encodeURIComponent(proposition.name)}" data-link aria-label="${escapeHtml(proposition.name)}: ${value ? 'true' : 'false'}">${iconText(value ? 'check' : 'xmark', escapeHtml(proposition.name))}</a>`
     }).join('')}
   </div>`
 }
@@ -404,7 +414,7 @@ async function renderCategory(morphisms, objects, index) {
   const facts = factsAt(factData, cell.offset + index)
   const label = categoryLabel(morphisms, objects, index)
   setTitle(label)
-  app.innerHTML = `${hero(label, 'green')}
+  app.innerHTML = `${hero(label, 'green', 'paw')}
     <section class="section container">
       <div class="grid two">
         <div>
@@ -421,7 +431,7 @@ async function renderCategory(morphisms, objects, index) {
         <div>
           <h2>Visualization</h2>
           ${morphisms > 0 ? `<div class="box viz-box">
-            <div class="viz-toolbar"><span class="help">Drag the objects to rearrange the quiver.</span><button class="button is-small is-light" type="button" data-reset-viz>Reset layout</button></div>
+            <div class="viz-toolbar"><span class="help">Drag the objects to rearrange the quiver.</span><button class="button is-small is-light" type="button" data-reset-viz>${iconText('rotate-left', 'Reset layout')}</button></div>
             <div class="viz" id="category-viz"></div>
           </div><p class="help">Morphisms 0 through ${objects - 1} are identities, shown as objects.</p>` : '<p>The empty category has no quiver.</p>'}
         </div>
@@ -462,7 +472,7 @@ async function renderStats() {
     rows.push(`<tr><th class="number">${morphisms}</th>${cells.join('')}<th class="number">${numberFormat.format(rowTotal)}</th></tr>`)
   }
   setTitle('Statistics')
-  app.innerHTML = `${hero('Statistics', 'green')}
+  app.innerHTML = `${hero('Statistics', 'green', 'chart-simple')}
     <section class="section container">
       <div class="grid three">
         <div class="card"><span class="muted">Categories</span><strong class="stat">${numberFormat.format(manifest.categoryCount)}</strong></div>
@@ -481,10 +491,10 @@ async function renderStats() {
 
 function renderAbout() {
   setTitle('About')
-  app.innerHTML = `${hero('About')}
+  app.innerHTML = `${hero('About', 'info', 'question')}
     <section class="section container">
       <p>The SmallCategories Project produces, maintains, and publishes a database of small finite categories.</p>
-      <p>The category tables are generated with the <a href="https://github.com/minion/minion">Minion constraint solver</a>, then canonicalized to eliminate isomorphic copies. The <a href="https://github.com/diracdeltafunk/SmallCategories">database source and generator</a> are public.</p>
+      <p>The category tables are generated with the <a href="https://github.com/minion/minion">${iconText('github', 'Minion constraint solver', { brand: true })}</a>, then canonicalized to eliminate isomorphic copies. The <a href="https://github.com/diracdeltafunk/SmallCategories">${iconText('github', 'database source and generator', { brand: true })}</a> are public.</p>
       <p>This static version is generated from those canonical tables. It performs browsing and queries in the browser, so ordinary site usage requires neither a running application server nor an online SQL database.</p>
       <p>SmallCategories is a project by <a href="https://benspitz.com">Ben Spitz</a>. Contributions are welcome.</p>
     </section>`
@@ -492,23 +502,23 @@ function renderAbout() {
 
 function renderSupport() {
   setTitle('Support')
-  app.innerHTML = `${hero('Support', 'dark')}
+  app.innerHTML = `${hero('Support', 'dark', 'mug-saucer')}
     <section class="section container">
       <p>The static migration is intended to make normal website hosting free. Donations remain useful for domain registration and the computational work needed to extend the category database.</p>
-      <p><a class="button is-dark" href="https://ko-fi.com/B0B3DOCLE">Support SmallCategories on Ko-fi</a></p>
+      <p><a class="button is-dark" href="https://ko-fi.com/B0B3DOCLE">${iconText('mug-saucer', 'Support SmallCategories on Ko-fi')}</a></p>
     </section>`
 }
 
 function renderSmallCat() {
   setTitle('Small Cat')
-  app.innerHTML = `${hero('Small Cat')}
+  app.innerHTML = `${hero('Small Cat', '', 'paw')}
     <section class="section container"><p style="font-size:6rem;margin:0" aria-label="A small cat">🐈</p><p class="help">The static site does not transmit an API key to a third-party cat service.</p></section>`
 }
 
 function renderNotFound() {
   setTitle('Not Found')
-  app.innerHTML = `${hero('404 · Not Found', 'dark')}
-    <section class="section container"><p>The requested page <code>${escapeHtml(window.location.pathname)}</code> could not be found.</p><p><a class="button is-warning" href="/" data-link>Return home</a></p></section>`
+  app.innerHTML = `${hero('404 · Not Found 😿', 'warning')}
+    <section class="section container"><p>The requested page <code>${escapeHtml(window.location.pathname)}</code> could not be found.</p><p>If you think this is a bug, <a href="https://github.com/diracdeltafunk/SmallCategories-site/issues">report it ${icon('arrow-up-right-from-square')}</a>.</p><p><a class="button is-warning" href="/" data-link>Return home</a></p></section>`
 }
 
 async function renderRandom() {
@@ -530,7 +540,7 @@ async function renderRoute() {
   document.querySelector('#nav-links').classList.remove('is-active')
   document.querySelector('.nav-toggle').classList.remove('is-active')
   document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false')
-  app.innerHTML = '<section class="section container"><p class="loading">Loading…</p></section>'
+  app.innerHTML = `<section class="section container"><p class="loading">${icon('ellipsis', { animation: 'fade' })} Loading…</p></section>`
   window.scrollTo({ top: 0, behavior: 'instant' })
 
   try {
