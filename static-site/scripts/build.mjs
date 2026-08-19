@@ -262,7 +262,6 @@ async function build() {
   await rm(TEMP_DIR, { recursive: true, force: true })
   await mkdir(TEMP_DIR, { recursive: true })
   await cp(SOURCE_DIR, TEMP_DIR, { recursive: true })
-  await cp(join(TEMP_DIR, 'index.html'), join(TEMP_DIR, '404.html'))
 
   const cells = []
   let categoryCount = 0

@@ -29,7 +29,7 @@ Preview the generated site with its single-page-app fallback:
 npm run preview
 ```
 
-The preview is available at `http://127.0.0.1:8000`. Cloudflare uses the equivalent fallback configured in `src/_redirects`.
+The preview is available at `http://127.0.0.1:8000`. Cloudflare Pages supplies the equivalent single-page-app fallback automatically because the build intentionally has no top-level `404.html`.
 
 ## Supabase export
 
