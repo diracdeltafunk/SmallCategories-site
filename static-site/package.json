@@ -1,0 +1,12 @@
+{
+  "name": "smallcats-static-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:export": "node scripts/build.mjs --export export",
+    "export:supabase": "python3 scripts/export_supabase.py",
+    "check": "node --check src/app.js && node --check scripts/build.mjs && node --check scripts/test-build.mjs && python3 -m py_compile scripts/export_supabase.py",
+    "test": "node scripts/test-build.mjs"
+  }
+}
