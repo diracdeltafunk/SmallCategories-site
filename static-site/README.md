@@ -23,13 +23,13 @@ The build reads the database working tree. Check its Git status before building:
 
 ## Preview
 
-Any static HTTP server with single-page-app fallback can serve `dist/`. For a quick preview of top-level pages:
+Preview the generated site with its single-page-app fallback:
 
 ```sh
-python3 -m http.server --directory dist 8000
+npm run preview
 ```
 
-Direct nested routes require SPA fallback, as configured for Cloudflare by `src/_redirects`.
+The preview is available at `http://127.0.0.1:8000`. Cloudflare uses the equivalent fallback configured in `src/_redirects`.
 
 ## Supabase export
 
@@ -63,6 +63,29 @@ Build the complete static site with:
 npm run build:export
 ```
 
+Once the verified export has been preserved in the adjacent database repository, the reproducible production command is:
+
+```sh
+npm run build:production
+```
+
 The compiler matches exported database rows to canonical multiplication tables by SHA-256 fingerprint, not by a potentially stale numeric index. It fails if any exported category is missing or any fact count differs. The resulting site preserves legacy UUID URLs and supports proposition queries entirely in the browser.
 
 The export is a migration artifact, not a full Postgres backup. Also capture a logical schema/data backup before cancelling Supabase. Do not cancel Supabase until the export and backup have been preserved, the generated site has been compared with production, DNS has been cut over, and the old site has remained available during a rollback window.
+
+## Cloudflare Pages
+
+The hosted build clones the public database repository at build time and therefore needs no secrets or running database:
+
+```sh
+npm run build:cloudflare
+```
+
+Use these Pages Git-integration settings after both migration branches have been merged to `master`:
+
+- Framework preset: **None**
+- Build command: `npm --prefix static-site run build:cloudflare`
+- Build output directory: `static-site/dist`
+- Root directory: leave blank
+
+For a branch preview before merging, add the build environment variable `SMALLCATS_DATABASE_REF=migration/cloudflare-static` and ensure that branch has been pushed in both repositories. Remove the variable after merging so hosted builds use `master`.
