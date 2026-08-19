@@ -10,6 +10,7 @@ const execFileAsync = promisify(execFile)
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const SITE_DIR = resolve(SCRIPT_DIR, '..')
 const DIST_DIR = join(SITE_DIR, 'dist')
+const DATA_DIR = join(DIST_DIR, 'data', 'v3')
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -58,7 +59,7 @@ try {
   ], { cwd: SITE_DIR })
   assert(stdout.includes('Matched 1 exported categories'), 'category matching was not reported')
 
-  const manifest = JSON.parse(await readFile(join(DIST_DIR, 'data', 'manifest.json'), 'utf8'))
+  const manifest = JSON.parse(await readFile(join(DATA_DIR, 'manifest.json'), 'utf8'))
   assert(manifest.categoryCount === 1, 'wrong category count')
   assert(manifest.propositionCount === 2, 'wrong proposition count')
   assert(manifest.relationCount === 2, 'wrong relation count')
@@ -67,11 +68,11 @@ try {
   assert(!('legacyIdsAvailable' in manifest), 'legacy ID support leaked into the manifest')
   assert(manifest.metadataCategoryCount === 1, 'wrong metadata category count')
 
-  const facts = await readFile(join(DIST_DIR, 'data', 'facts.bin'))
+  const facts = await readFile(join(DATA_DIR, 'facts.bin'))
   assert(facts.readUInt32LE(0) === 3, 'wrong known-fact mask')
   assert(facts.readUInt32LE(4) === 1, 'wrong fact-value mask')
 
-  const metadata = JSON.parse(await readFile(join(DIST_DIR, 'data', 'metadata', '1-1.json'), 'utf8'))
+  const metadata = JSON.parse(await readFile(join(DATA_DIR, 'metadata', '1-1.json'), 'utf8'))
   assert(metadata[0][1] === 'Terminal test category', 'friendly name was not compiled')
   const indexHtml = await readFile(join(DIST_DIR, 'index.html'), 'utf8')
   const appBundleName = /src="\/(app-[A-Z0-9]+\.js)"/.exec(indexHtml)?.[1]

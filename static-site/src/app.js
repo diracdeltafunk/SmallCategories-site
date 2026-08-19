@@ -20,7 +20,7 @@ function escapeHtml(value) {
 }
 
 function dataUrl(path) {
-  return new URL(`/data/${path}`, window.location.origin).toString()
+  return new URL(`/data/v3/${path}`, window.location.origin).toString()
 }
 
 async function fetchJson(path) {

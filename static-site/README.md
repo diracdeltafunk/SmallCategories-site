@@ -71,7 +71,7 @@ Once the verified export has been preserved in the adjacent database repository,
 npm run build:production
 ```
 
-The compiler matches exported database rows to canonical multiplication tables by SHA-256 fingerprint. It fails if any exported category is missing or any fact count differs. Neither category nor proposition UUIDs are retained: public category routes use `SmallCat(n,k,i)` coordinates and proposition routes use proposition names. Proposition queries run entirely in the browser.
+The compiler matches exported database rows to canonical multiplication tables by SHA-256 fingerprint. It fails if any exported category is missing or any fact count differs. Neither category nor proposition UUIDs are retained: public category routes use `SmallCat(n,k,i)` coordinates and proposition routes use proposition names. Proposition queries run entirely in the browser. Compiled data lives under a schema-versioned URL, and the manifest is revalidated on each load so a deployment cannot combine incompatible data formats.
 
 The export is a migration artifact, not a full Postgres backup. Also capture a logical schema/data backup before cancelling Supabase. Do not cancel Supabase until the export and backup have been preserved, the generated site has been compared with production, DNS has been cut over, and the old site has remained available during a rollback window.
 

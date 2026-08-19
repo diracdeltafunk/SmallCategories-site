@@ -22,6 +22,7 @@ const SOURCE_DIR = resolve(SITE_DIR, 'src')
 const FINAL_DIR = resolve(SITE_DIR, 'dist')
 const TEMP_DIR = resolve(SITE_DIR, '.dist-tmp')
 const SHARD_SIZE = 512
+const DATA_VERSION = 'v3'
 
 function parseArgs(argv) {
   const result = { databaseDir: DEFAULT_DATABASE_DIR, exportDir: null }
@@ -56,7 +57,7 @@ async function writeJson(path, value) {
 }
 
 async function writeShard(outputDir, morphisms, objects, shardIndex, start, tables) {
-  const path = join(outputDir, 'data', 'categories', `${morphisms}-${objects}-${shardIndex}.json`)
+  const path = join(outputDir, 'data', DATA_VERSION, 'categories', `${morphisms}-${objects}-${shardIndex}.json`)
   await writeJson(path, {
     morphisms,
     objects,
@@ -220,7 +221,7 @@ async function compileCell(databaseDir, outputDir, filename, morphisms, objects,
   }
 
   if (metadata.length > 0) {
-    await writeJson(join(outputDir, 'data', 'metadata', `${morphisms}-${objects}.json`), metadata)
+    await writeJson(join(outputDir, 'data', DATA_VERSION, 'metadata', `${morphisms}-${objects}.json`), metadata)
   }
 
   return {
@@ -295,7 +296,7 @@ async function build() {
   if (migration) {
     const facts = Buffer.alloc(migration.facts.length * 4)
     migration.facts.forEach((value, index) => facts.writeUInt32LE(value >>> 0, index * 4))
-    await writeFile(join(TEMP_DIR, 'data', 'facts.bin'), facts)
+    await writeFile(join(TEMP_DIR, 'data', DATA_VERSION, 'facts.bin'), facts)
   }
 
   const manifest = {
@@ -307,8 +308,8 @@ async function build() {
     factsAvailable: Boolean(migration),
     cells,
   }
-  await writeJson(join(TEMP_DIR, 'data', 'manifest.json'), manifest)
-  await writeJson(join(TEMP_DIR, 'data', 'propositions.json'), migration?.propositions || [])
+  await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'manifest.json'), manifest)
+  await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'propositions.json'), migration?.propositions || [])
   await rm(join(TEMP_DIR, 'app.js'), { force: true })
   await rm(join(TEMP_DIR, 'styles.css'), { force: true })
   await rm(join(TEMP_DIR, 'visualization.js'), { force: true })

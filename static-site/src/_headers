@@ -1,5 +1,8 @@
-/data/*
+/data/v3/*
   Cache-Control: public, max-age=3600
+
+/data/v3/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
 
 /app-*.js
   Cache-Control: public, max-age=31536000, immutable
