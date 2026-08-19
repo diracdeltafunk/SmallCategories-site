@@ -84,6 +84,8 @@ try {
   assert(!bundledApp.includes('legacy-ids'), 'legacy ID route support leaked into the browser bundle')
   assert(!bundledApp.includes('/support') && !bundledApp.toLowerCase().includes('ko-fi'), 'retired support page leaked into the browser bundle')
   assert(bundledApp.includes('"paw"') && bundledApp.includes('"check"'), 'page icons were not included in the browser bundle')
+  assert(bundledApp.includes('api.thecatapi.com/v1/images/search?limit=1'), 'the Small Cat API request was not included')
+  assert(bundledApp.includes('Small cats provided by') && !bundledApp.includes('x-api-key'), 'the Small Cat attribution or API-key guard is missing')
   assert(bundledApp.includes('Each nonempty cell is complete') && bundledApp.includes('stats-table'), 'the statistics table explanation was not retained')
   const bundledStyles = await readFile(join(DIST_DIR, styleBundleName), 'utf8')
   assert(bundledStyles.includes('#app:focus{outline:none}'), 'the application focus outline was not suppressed')

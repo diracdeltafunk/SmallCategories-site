@@ -2,6 +2,7 @@ import { mountCategoryVisualization } from './visualization.js'
 
 const app = document.querySelector('#app')
 const numberFormat = new Intl.NumberFormat('en-US')
+const CAT_API_URL = 'https://api.thecatapi.com/v1/images/search?limit=1'
 
 let manifestPromise
 let propositionsPromise
@@ -506,10 +507,29 @@ function renderAbout() {
     </section>`
 }
 
-function renderSmallCat() {
+async function renderSmallCat(generation) {
   setTitle('Small Cat')
   app.innerHTML = `${hero('Small Cat', '', 'paw')}
-    <section class="section container"><p style="font-size:6rem;margin:0" aria-label="A small cat">🐈</p><p class="help">The static site does not transmit an API key to a third-party cat service.</p></section>`
+    <section class="section container" id="smolcat-content" aria-live="polite">
+      <p class="loading">${icon('ellipsis', { animation: 'fade' })} Finding a small cat…</p>
+    </section>`
+
+  try {
+    const response = await fetch(CAT_API_URL, { headers: { Accept: 'application/json' } })
+    if (!response.ok) throw new Error(`The Cat API returned ${response.status}`)
+    const cats = await response.json()
+    const imageUrl = new URL(cats?.[0]?.url)
+    if (imageUrl.protocol !== 'https:') throw new Error('The Cat API returned an invalid image URL')
+    if (generation !== routeGeneration) return
+
+    document.querySelector('#smolcat-content').innerHTML = `
+      <img width="100" src="${escapeHtml(imageUrl.toString())}" alt="A small cat" referrerpolicy="no-referrer">
+      <p class="help">Small cats provided by <a href="https://thecatapi.com">The Cat API</a>.</p>`
+  } catch (error) {
+    if (generation !== routeGeneration) return
+    console.error(error)
+    document.querySelector('#smolcat-content').innerHTML = '<p>Sorry, couldn\'t fetch a cat 😿. Maybe the API usage limit has been exceeded?</p>'
+  }
 }
 
 function renderNotFound() {
@@ -547,7 +567,7 @@ async function renderRoute() {
     else if (path === '/query' || path === '/query_mobile') await renderQuery()
     else if (path === '/stats') await renderStats()
     else if (path === '/about') renderAbout()
-    else if (path === '/smolcats') renderSmallCat()
+    else if (path === '/smolcats') await renderSmallCat(generation)
     else if (path === '/random') await renderRandom()
     else {
       const canonical = /^\/category\/(\d+)\/(\d+)\/(\d+)$/.exec(path)
