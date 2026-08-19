@@ -14,46 +14,48 @@
 <section class="section">
   <div class="level">
     <div class="level-item has-text-centered">
-      <div><p class="heading">Categories</p><p class="title" data-stat="categories"></p></div>
+      <div>
+        <p class="heading">Categories</p>
+        <p class="title" data-stat="categories"></p>
+      </div>
     </div>
     <div class="level-item has-text-centered">
-      <div><p class="heading">Propositions</p><p class="title" data-stat="propositions"></p></div>
+      <div>
+        <p class="heading">Propositions</p>
+        <p class="title" data-stat="propositions"></p>
+      </div>
     </div>
     <div class="level-item has-text-centered">
-      <div><p class="heading">Prop. Values</p><p class="title" data-stat="relations"></p></div>
+      <div>
+        <p class="heading">Prop. Values</p>
+        <p class="title" data-stat="relations"></p>
+      </div>
     </div>
   </div>
 </section>
 
 <section class="section container">
-  <div class="notification is-info is-light methodology-callout">
-    <span class="icon is-large"><i class="fa-solid fa-circle-check fa-2x" aria-hidden="true"></i></span>
-    <div>
-      <p><strong>These counts have a second, structural check.</strong></p>
-      <p>Read how the categories are enumerated, how connected components verify the totals, and why published and earlier SmallCats totals differ.</p>
-      <p>
-        <a class="button is-info is-light is-outlined" href="/enumeration" data-link>
-          <span class="icon-text">
-            <span class="icon"><i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i></span>
-            <span>Enumeration &amp; verification</span>
-          </span>
-        </a>
-      </p>
-    </div>
-  </div>
 
   <div class="table-container">
     <table class="table is-bordered stats-table">
-      <thead><tr data-stats-heading></tr></thead>
+      <thead>
+        <tr data-stats-heading></tr>
+      </thead>
       <tbody data-stats-body></tbody>
     </table>
   </div>
 
   <p class="help stats-help">
     This table shows the number of categories in this build with a given number of objects and morphisms.
-    <br>Each nonempty cell is complete: the database contains every isomorphism class of categories with the corresponding numbers of objects and morphisms.
-    <br>There are no categories with fewer morphisms than objects, or with zero objects and more than zero morphisms, so these cells are blank and grayed out.
-    <br>Other blank cells indicate that this build does not yet contain categories with those numbers of objects and morphisms, even though such categories exist.
+    <br>Each nonempty cell is complete: the database contains every isomorphism class of categories with the
+    corresponding numbers of objects and morphisms.
+    <br>There are no categories with fewer morphisms than objects, or with zero objects and more than zero morphisms, so
+    these cells are blank and grayed out.
+    <br>Other blank cells indicate that this build does not yet contain categories with those numbers of objects and
+    morphisms, even though such categories exist.
     <br>Green cells indicate a stable value; see <a href="https://oeis.org/A125701">A125701</a>.
+    <a href="/enumeration">
+      Read more about the enumeration &amp; verification.
+    </a>
   </p>
 </section>
