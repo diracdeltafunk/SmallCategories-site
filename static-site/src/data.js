@@ -4,7 +4,7 @@ let factsPromise
 const metadataPromises = new Map()
 
 function dataUrl(path) {
-  return new URL(`/data/v3/${path}`, window.location.origin).toString()
+  return new URL(`/data/v4/${path}`, window.location.origin).toString()
 }
 
 async function fetchJson(path) {

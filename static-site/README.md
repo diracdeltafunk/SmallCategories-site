@@ -21,6 +21,8 @@ The production build combines two inputs:
 
 The compiler joins metadata to canonical tables by SHA-256 fingerprint and validates the snapshot's category, proposition, fact, and table counts. Public routes use `SmallCat(n,k,i)` coordinates and proposition names; no provider-specific identifiers or credentials are compiled into the site.
 
+Compiled data is published under a versioned URL namespace, currently `/data/v4/`. Bump that namespace whenever the database contents, metadata, facts, or compiled data schema change; otherwise a browser may combine cached files from different releases.
+
 Install the pinned dependencies and make a production build:
 
 ```sh

@@ -23,7 +23,7 @@ const FINAL_DIR = resolve(SITE_DIR, 'dist')
 const TEMP_DIR = resolve(SITE_DIR, '.dist-tmp')
 const PUBLIC_FILES = ['.nojekyll', '_headers', 'favicon.svg', 'index.html']
 const SHARD_SIZE = 512
-const DATA_VERSION = 'v3'
+const DATA_VERSION = 'v4'
 
 function parseArgs(argv) {
   const result = { databaseDir: DEFAULT_DATABASE_DIR, websiteDataDir: null }

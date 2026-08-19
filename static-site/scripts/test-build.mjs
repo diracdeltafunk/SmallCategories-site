@@ -10,7 +10,8 @@ const execFileAsync = promisify(execFile)
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const SITE_DIR = resolve(SCRIPT_DIR, '..')
 const DIST_DIR = join(SITE_DIR, 'dist')
-const DATA_DIR = join(DIST_DIR, 'data', 'v3')
+const DATA_VERSION = 'v4'
+const DATA_DIR = join(DIST_DIR, 'data', DATA_VERSION)
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -91,6 +92,10 @@ try {
   assert(bundledJavaScript.includes('api.thecatapi.com/v1/images/search?limit=1'), 'the Small Cat API request was not included')
   assert(bundledJavaScript.includes('Small cats provided by') && !bundledJavaScript.includes('x-api-key'), 'the Small Cat attribution or API-key guard is missing')
   assert(bundledJavaScript.includes('Each nonempty cell is complete') && bundledJavaScript.includes('stats-table'), 'the statistics table explanation was not retained')
+  assert(bundledJavaScript.includes(`/data/${DATA_VERSION}/`), 'the browser bundle uses the wrong data namespace')
+  const headers = await readFile(join(DIST_DIR, '_headers'), 'utf8')
+  assert(headers.includes(`/data/${DATA_VERSION}/facts.bin`), 'cache headers use the wrong data namespace')
+  assert((await readdir(join(DIST_DIR, 'data'))).join() === DATA_VERSION, 'the build emitted an unexpected data namespace')
   const bundledStyles = await readFile(join(DIST_DIR, styleBundleName), 'utf8')
   assert(bundledStyles.includes('#app:focus{outline:none}'), 'the application focus outline was not suppressed')
   const outputFiles = await readdir(DIST_DIR)
