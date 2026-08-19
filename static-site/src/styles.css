@@ -106,6 +106,23 @@ fieldset {
 .impossible { background: #f1f1f1; }
 .stats-table td, .stats-table th { font-variant-numeric: tabular-nums; }
 .stats-help { margin-top: 0.75rem; text-wrap: wrap; }
+.methodology-callout { display: flex; align-items: flex-start; gap: 1rem; }
+.methodology-callout > .icon { flex: none; }
+.methodology-callout p:not(:last-child) { margin-bottom: 0.6rem; }
+.methodology-content { max-width: 75rem; }
+.methodology-content h2:not(:first-child) { margin-top: 2rem; }
+.methodology-formula {
+  overflow-x: auto;
+  padding: 0.9rem 1rem;
+  border-left: 4px solid #3e8ed0;
+  background: #f5f9fc;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+.methodology-table td, .methodology-table th { font-variant-numeric: tabular-nums; }
+.methodology-table th:not(:first-child), .methodology-table td:not(:first-child) { text-align: right; }
+.methodology-links { margin-top: 2rem; }
 
 .pagination {
   display: flex;

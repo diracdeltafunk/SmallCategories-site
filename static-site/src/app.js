@@ -482,6 +482,14 @@ async function renderStats() {
       </div>
     </section>
     <section class="section container">
+      <div class="notification is-info is-light methodology-callout">
+        ${icon('circle-check', { large: true })}
+        <div>
+          <p><strong>These counts have a second, structural check.</strong></p>
+          <p>Read how the categories are enumerated, how connected components verify the totals, and why published and earlier SmallCats totals differ.</p>
+          <p><a class="button is-info is-light is-outlined" href="/enumeration" data-link>${iconText('magnifying-glass-chart', 'Enumeration & verification')}</a></p>
+        </div>
+      </div>
       <div class="table-container"><table class="table is-bordered stats-table">
         <thead><tr><th>Objects →<br>Morphisms ↓</th>${Array.from({ length: maxObjects + 1 }, (_, i) => `<th>${i}</th>`).join('')}<th>Total</th></tr></thead>
         <tbody>${rows.join('')}<tr><th>Total</th>${columnTotals.map(total => `<th>${numberFormat.format(total)}</th>`).join('')}<th>${numberFormat.format(manifest.categoryCount)}</th></tr></tbody>
@@ -493,6 +501,59 @@ async function renderStats() {
         <br>Other blank cells indicate that this build does not yet contain categories with those numbers of objects and morphisms, even though such categories exist.
         <br>Green cells indicate a stable value; see <a href="https://oeis.org/A125701">A125701</a>.
       </p>
+    </section>`
+}
+
+function renderMethodology() {
+  setTitle('Enumeration & Verification')
+  app.innerHTML = `${hero('Enumeration & Verification', 'info', 'magnifying-glass-chart')}
+    <section class="section container">
+      <div class="content methodology-content">
+        <p class="lead">SmallCats counts finite categories by total morphisms and objects, up to isomorphism. Every populated cell is intended to be exhaustive, and the totals are checked independently using the unique decomposition of a category into connected components.</p>
+
+        <h2>${iconText('list-ol', 'Conventions')}</h2>
+        <p>In a cell, morphisms are listed first and objects second. The morphism count includes the identity of every object. Categories are identified only when there is an isomorphism of categories between them; equivalence is not the relation being counted. In each stored multiplication table, the identities come first and an extra sentinel value records undefined compositions.</p>
+
+        <h2>${iconText('gears', 'Core enumeration')}</h2>
+        <ol>
+          <li><a href="https://github.com/minion/minion">Minion</a> enumerates every labelled partial multiplication table satisfying source, target, identity, definedness, and associativity constraints.</li>
+          <li>The postprocessor relabels the objects among themselves and the remaining morphisms among themselves.</li>
+          <li>Only the lexicographically least table in each orbit is retained, leaving one representative of every isomorphism class.</li>
+        </ol>
+        <p>This core model is independent of the later <em>hypersplit</em> optimization, which divides a large search into smaller strata according to kinds of nonidentity morphisms. Small cases and the disputed cells are also checked directly against the axioms and for canonical uniqueness.</p>
+
+        <h2>${iconText('diagram-project', 'Connected-component checksum')}</h2>
+        <p>Every finite category is uniquely a disjoint union of connected categories. If <var>T(n,k)</var> counts all categories with <var>n</var> morphisms and <var>k</var> objects, and <var>C(n,k)</var> counts the connected ones, their generating functions therefore satisfy the two-variable Euler transform</p>
+        <p class="methodology-formula">Σ<sub>n,k</sub> <var>T(n,k)</var>x<sup>n</sup>y<sup>k</sup> = ∏<sub>n,k</sub> (1 − x<sup>n</sup>y<sup>k</sup>)<sup>−C(n,k)</sup>.</p>
+        <p>Consequently, earlier connected counts predict the exact number of disconnected categories in every later cell. We compare that prediction not just with the file total, but with every multiset of component sizes represented in the file. This caught an error that ordinary table validation did not.</p>
+
+        <h2>${iconText('scale-balanced', 'The disputed and corrected counts')}</h2>
+        <div class="table-container"><table class="table is-bordered is-striped methodology-table">
+          <thead><tr><th>Morphisms</th><th>Objects</th><th>Cruttwell–Leblanc</th><th>Earlier SmallCats</th><th>Audited count</th></tr></thead>
+          <tbody>
+            <tr><td>9</td><td>3</td><td>60,201</td><td>60,322</td><td><strong>60,322</strong></td></tr>
+            <tr><td>10</td><td>4</td><td>65,922</td><td>68,815</td><td><strong>68,990</strong></td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>9 morphisms and 3 objects</h3>
+        <p>The <a href="https://www.reluctantm.com/gcruttw/publications/ams2014CruttwellCountingFiniteCats.pdf">2014 Cruttwell–Leblanc presentation</a> explains that, at this scale, their program changed to enumerating connected categories and reconstructing the disconnected ones. The agreed smaller counts force exactly 56,754 disconnected categories here. Their total would therefore contain 3,447 connected categories; the original, unsplit SmallCats search found 3,568. Its 3,568 connected plus 56,754 disconnected records give 60,322 exactly.</p>
+        <p>The timing makes the connected-only optimization the likely source of their discrepancy, but their implementation and stored output are not available, so we cannot responsibly claim a particular defect in their code.</p>
+
+        <h3>10 morphisms and 4 objects</h3>
+        <p>Even if one accepts the Cruttwell–Leblanc value at 9/3, the component formula forces 67,392 disconnected categories at 10/4—already more than their reported total of 65,922. That total is therefore impossible.</p>
+        <p>Using the corrected 9/3 count instead gives 67,513 disconnected categories. The exhaustive skeletal search gives 1,465 connected categories. Every remaining connected category is obtained by duplicating one object of a connected, skeletal three-object category with five or six morphisms; taking automorphism orbits of the complete small tables gives 12 more. Thus the corrected total is <strong>67,513 + 1,465 + 12 = 68,990</strong>.</p>
+
+        <h2>${iconText('bug-slash', 'The SmallCats hypersplit mistake')}</h2>
+        <p>Hypersplitting records <var>p</var> pairs of mutually inverse non-endomorphisms, a block containing <var>2p</var> arrows. The wrapper mistakenly told the canonicalizer that this block had size <var>p</var>. It could then compare a valid table with relabellings that did not preserve the split constraints and discard the only admissible canonical labelling.</p>
+        <p>At 10/4 this omitted 163 disconnected and 12 connected isomorphism classes. The corrected canonicalizer treats all <var>2p</var> arrows as <var>p</var> inverse pairs and uses the pair-preserving wreath-product action S<sub>2</sub> ≀ S<sub>p</sub>. The connected-component inventory is now part of the audit. The later stored cells at 11/6 and 12/9–11 also pass this checksum.</p>
+
+        <div class="buttons methodology-links">
+          <a class="button is-link is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">${iconText('github', 'Generator and database', { brand: true })}</a>
+          <a class="button is-info is-light is-outlined" href="https://oeis.org/A125697">${iconText('table-cells', 'OEIS category table')}</a>
+          <a class="button is-success is-light is-outlined" href="/stats" data-link>${iconText('chart-simple', 'Back to statistics')}</a>
+        </div>
+      </div>
     </section>`
 }
 
@@ -566,6 +627,7 @@ async function renderRoute() {
     else if (path === '/props') await renderPropositions()
     else if (path === '/query' || path === '/query_mobile') await renderQuery()
     else if (path === '/stats') await renderStats()
+    else if (path === '/enumeration') renderMethodology()
     else if (path === '/about') renderAbout()
     else if (path === '/smolcats') await renderSmallCat(generation)
     else if (path === '/random') await renderRandom()
