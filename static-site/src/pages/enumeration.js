@@ -1,3 +1,4 @@
+import { setTitle } from '../ui.js'
 import enumerationTemplate from './enumeration.html'
 
 let katexRendererPromise
@@ -7,7 +8,7 @@ function getKatexRenderer() {
   return katexRendererPromise
 }
 
-export async function renderEnumerationPage({ app, isCurrent, setTitle }) {
+export async function renderEnumerationPage({ app, isCurrent }) {
   const renderMathInElement = await getKatexRenderer()
   if (!isCurrent()) return
 

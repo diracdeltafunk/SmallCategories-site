@@ -1,0 +1,33 @@
+<section class="hero is-primary is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        <span class="icon-text">
+          <span class="icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+          <span>Query</span>
+        </span>
+      </h1>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <form class="box" id="query-form">
+    <div class="form-grid">
+      <div class="field"><label for="morphisms-lb">Minimum morphisms</label><input id="morphisms-lb" name="morphisms_lb" type="number" min="0" placeholder="0"></div>
+      <div class="field"><label for="morphisms-ub">Maximum morphisms</label><input id="morphisms-ub" name="morphisms_ub" type="number" min="0" placeholder="No maximum"></div>
+      <div class="field"><label for="objects-lb">Minimum objects</label><input id="objects-lb" name="objects_lb" type="number" min="0" placeholder="0"></div>
+      <div class="field"><label for="objects-ub">Maximum objects</label><input id="objects-ub" name="objects_ub" type="number" min="0" placeholder="No maximum"></div>
+    </div>
+    <div data-query-propositions></div>
+    <p>
+      <button class="button is-primary" type="submit">
+        <span class="icon-text">
+          <span class="icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+          <span>Search</span>
+        </span>
+      </button>
+    </p>
+  </form>
+  <div id="query-results"></div>
+</section>

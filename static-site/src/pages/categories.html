@@ -1,0 +1,33 @@
+<section class="hero is-link is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        <span class="icon-text">
+          <span class="icon"><i class="fa-solid fa-list" aria-hidden="true"></i></span>
+          <span>Browse Categories</span>
+        </span>
+      </h1>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="grid two">
+    <form class="box" id="browse-form">
+      <div class="field">
+        <label for="browse-morphisms">Morphisms</label>
+        <select id="browse-morphisms" name="morphisms" required>
+          <option value="">Select…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="browse-objects">Objects</label>
+        <select id="browse-objects" name="objects" required disabled>
+          <option value="">Select morphisms first…</option>
+        </select>
+      </div>
+      <p><button class="button is-link" type="submit" disabled>View</button></p>
+    </form>
+    <div id="browse-results"></div>
+  </div>
+</section>

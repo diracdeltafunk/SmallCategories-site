@@ -21,6 +21,7 @@ const DEFAULT_DATABASE_DIR = resolve(SITE_DIR, '../../SmallCategories/database')
 const SOURCE_DIR = resolve(SITE_DIR, 'src')
 const FINAL_DIR = resolve(SITE_DIR, 'dist')
 const TEMP_DIR = resolve(SITE_DIR, '.dist-tmp')
+const PUBLIC_FILES = ['.nojekyll', '_headers', 'favicon.svg', 'index.html']
 const SHARD_SIZE = 512
 const DATA_VERSION = 'v3'
 
@@ -257,7 +258,8 @@ async function build() {
 
   await rm(TEMP_DIR, { recursive: true, force: true })
   await mkdir(TEMP_DIR, { recursive: true })
-  await cp(SOURCE_DIR, TEMP_DIR, { recursive: true })
+  await Promise.all(PUBLIC_FILES.map(filename =>
+    cp(join(SOURCE_DIR, filename), join(TEMP_DIR, filename))))
 
   const cells = []
   let categoryCount = 0
@@ -310,10 +312,6 @@ async function build() {
   }
   await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'manifest.json'), manifest)
   await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'propositions.json'), migration?.propositions || [])
-  await rm(join(TEMP_DIR, 'app.js'), { force: true })
-  await rm(join(TEMP_DIR, 'styles.css'), { force: true })
-  await rm(join(TEMP_DIR, 'visualization.js'), { force: true })
-  await rm(join(TEMP_DIR, 'pages'), { recursive: true, force: true })
   await bundle({
     entryPoints: {
       app: join(SOURCE_DIR, 'app.js'),

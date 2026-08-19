@@ -1,6 +1,11 @@
+import { getManifest } from '../data.js'
+import { numberFormat, setTitle } from '../ui.js'
 import statsTemplate from './stats.html'
 
-export function renderStatsPage({ app, manifest, numberFormat, setTitle }) {
+export async function renderStatsPage({ app, isCurrent }) {
+  const manifest = await getManifest()
+  if (!isCurrent()) return
+
   const maxMorphisms = Math.max(...manifest.cells.map(cell => cell.morphisms))
   const maxObjects = Math.max(...manifest.cells.map(cell => cell.objects))
   const counts = new Map(manifest.cells.map(cell => [`${cell.morphisms}-${cell.objects}`, cell.count]))
