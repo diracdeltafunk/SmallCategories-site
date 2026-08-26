@@ -1,4 +1,5 @@
 import { createReadStream } from 'node:fs'
+import { createGunzip, gunzipSync } from 'node:zlib'
 import { createHash } from 'node:crypto'
 import {
   cp,
@@ -91,16 +92,19 @@ async function loadNames(websiteDataDir) {
 
 async function compileCell(databaseDir, outputDir, filename, morphisms, objects, offset, names) {
   const path = join(databaseDir, filename)
-  const propositionsPath = join(databaseDir, `props${morphisms}-${objects}.txt`)
+  const propositionsPath = join(databaseDir, `props${morphisms}-${objects}.txt.gz`)
   let masks
   try {
-    masks = (await readFile(propositionsPath, 'utf8')).split('\n').filter(Boolean).map(Number)
+    masks = gunzipSync(await readFile(propositionsPath)).toString('utf8')
+      .split('\n').filter(Boolean).map(Number)
   } catch {
     throw new Error(`${propositionsPath} is missing; run generate-database.sh to write it`)
   }
 
+  // Cells are stored gzipped, so decompress as we stream rather than holding a
+  // multi-gigabyte string in memory.
   const input = createInterface({
-    input: createReadStream(path, { encoding: 'utf8' }),
+    input: createReadStream(path).pipe(createGunzip()),
     crlfDelay: Infinity,
   })
 
@@ -197,7 +201,7 @@ async function build() {
 
   const databaseFiles = (await readdir(databaseDir))
     .map(filename => {
-      const match = /^cats(\d+)-(\d+)\.txt$/.exec(filename)
+      const match = /^cats(\d+)-(\d+)\.txt\.gz$/.exec(filename)
       return match
         ? { filename, morphisms: Number(match[1]), objects: Number(match[2]) }
         : null
@@ -206,7 +210,7 @@ async function build() {
     .sort((a, b) => a.morphisms - b.morphisms || a.objects - b.objects)
 
   if (databaseFiles.length === 0) {
-    throw new Error(`No cats<n>-<k>.txt files found in ${databaseDir}`)
+    throw new Error(`No cats<n>-<k>.txt.gz files found in ${databaseDir}`)
   }
 
   await rm(TEMP_DIR, { recursive: true, force: true })
