@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { gzipSync } from 'node:zlib'
 import { execFile } from 'node:child_process'
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -35,10 +35,12 @@ try {
     { name: 'false_fact', description: 'Known false', bit: 1 },
   ]
 
-  await writeFile(join(database, 'cats1-1.txt'), jsonLine([[0]]))
-  await writeFile(join(database, 'props1-1.txt'), '1\n')
-  await writeFile(join(database, 'cats2-1.txt'), jsonLine([[0, 1], [1, 1]]) + jsonLine([[0, 1], [1, 0]]))
-  await writeFile(join(database, 'props2-1.txt'), '0\n2\n')
+  // Cells are stored gzipped, so the fixture has to be too.
+  const writeCell = (name, text) => writeFile(join(database, name), gzipSync(Buffer.from(text)))
+  await writeCell('cats1-1.txt.gz', jsonLine([[0]]))
+  await writeCell('props1-1.txt.gz', '1\n')
+  await writeCell('cats2-1.txt.gz', jsonLine([[0, 1], [1, 1]]) + jsonLine([[0, 1], [1, 0]]))
+  await writeCell('props2-1.txt.gz', '0\n2\n')
   await writeFile(join(websiteData, 'propositions.json'), jsonLine(propositions))
   await writeFile(join(websiteData, 'names.json'), jsonLine([{
     morphisms: 1,
