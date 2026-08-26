@@ -13,10 +13,11 @@
 
 <section class="section container">
   <div class="content methodology-content">
-    <p class="lead">SmallCats is built by turning the category axioms into a finite constraint problem. For each pair
-      $(n,k)$, the program finds every composition table with $n$ morphisms and $k$ objects, then keeps one table from
-      each possible relabelling. Here is how that translation works, and a note about why two of our counts
-      differ from those reported by Cruttwell and Leblanc.</p>
+    <p class="lead">SmallCats is built by writing down every category with $n$ morphisms and $k$ objects, once each.
+      The interesting word there is "once": the obvious approach produces each category hundreds or thousands of times
+      over, in every possible labelling, and then has to throw the duplicates away. We don't do that any more. Here's
+      how the search avoids producing a duplicate in the first place, how we check the answer afterwards, and a note
+      about why two of our counts differ from those reported by Cruttwell and Leblanc.</p>
 
     <p><i>Disclaimer</i> This is a mostly-AI-written explanation of the algorithm.</p>
 
@@ -55,38 +56,90 @@
     A_{A_{f,g},h}=A_{f,A_{g,h}}
     $$
     <p>whenever $d(f)=c(g)$ and $d(g)=c(h)$. Together with the domain, codomain, and composability constraints, these
-      are exactly the category axioms in multiplication-table form. We give this finite constraint problem to <a
-        href="https://github.com/minion/minion">Minion</a>, which enumerates every labelled solution.</p>
+      are exactly the category axioms in multiplication-table form. So a category with $n$ morphisms and $k$ objects is
+      just a table satisfying finitely many constraints, and enumerating categories means enumerating those tables.</p>
 
     <h2>
       <span class="icon-text">
         <span class="icon"><i class="fa-solid fa-gears" aria-hidden="true"></i></span>
-        <span>Removing the labels</span>
+        <span>The trouble with labels</span>
       </span>
     </h2>
-    <p>Of course, one category usually appears under many labellings. The $k$ identity morphisms may be permuted among
-      themselves, and the other $n-k$ morphisms may be permuted among themselves. Thus the relevant relabelling group is
-    </p>
-    $$
-    G_{n,k}=S_k\times S_{n-k},
-    $$
+    <p>One category usually appears under many labellings. The $k$ identity morphisms may be permuted among themselves,
+      and the other $n-k$ morphisms may be permuted among themselves, so the relevant relabelling group is</p>
+    <div class="methodology-formula">
+      $$
+      G_{n,k}=S_k\times S_{n-k},
+      $$
+    </div>
     <p>where $S_r$ is the symmetric group on $r$ labels. Extend each $\sigma\in G_{n,k}$ by setting $\sigma(n)=n$, so
-      that the undefined value remains fixed. The relabelled table is</p>
-    $$
-    (\sigma\cdot A)_{f,g}
-    =\sigma\!\left(A_{\sigma^{-1}(f),\sigma^{-1}(g)}\right).
-    $$
-    <p>Two tables describe isomorphic categories exactly when they lie in the same orbit of this action. We read tables
-      row by row and choose</p>
-    $$
-    \operatorname{can}(A)=\min_{\sigma\in G_{n,k}}(\sigma\cdot A)
-    $$
-    <p>in lexicographic order. Replacing every solution by $\operatorname{can}(A)$ and retaining one copy leaves exactly
-      one representative of each isomorphism class.</p>
-    <p>For the larger cells, we divide the same search into smaller pieces according to intrinsic data such as the
-      number of nonidentity idempotents, non-idempotent endomorphisms, and inverse pairs between distinct objects. Each
-      category has one definite combination of these counts, so it appears in exactly one piece. We then reunite the
-      results and canonicalize under the full group $G_{n,k}$.</p>
+      that the undefined value stays put. The relabelled table is</p>
+    <div class="methodology-formula">
+      $$
+      (\sigma\cdot A)_{f,g}
+      =\sigma\!\left(A_{\sigma^{-1}(f),\sigma^{-1}(g)}\right),
+      $$
+    </div>
+    <p>and two tables describe isomorphic categories exactly when they lie in the same orbit of this action.</p>
+    <p>Now, $\lvert G_{n,k}\rvert$ is enormous: it's $4{,}320$ for $(9,3)$ and $17{,}280$ for $(10,4)$. If we just ask
+      a solver for every table satisfying the axioms, we get back up to that many copies of each category, and we're
+      left holding hundreds of millions of tables that we have to sort out afterwards. That is how this database used
+      to be built. It works, but it's slow, it produces enormous intermediate files, and every step of the
+      deduplication is a chance to get the group wrong and lose a category. So instead we arrange for the search to
+      produce one table per isomorphism class and no more.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-shapes" aria-hidden="true"></i></span>
+        <span>Fixing the shape first</span>
+      </span>
+    </h2>
+    <p>Here's the key observation. Forget composition for a moment and keep only the domains and codomains: what's left
+      is a directed multigraph on the $k$ objects, with one edge for each of the $n-k$ nonidentity morphisms. Call its
+      isomorphism class the <i>shape</i> of the category.</p>
+    <p>Every category has exactly one shape. And if we fix a shape and consider only categories with that shape, then
+      two of them are isomorphic exactly when some automorphism of the shape carries one to the other — a relabelling
+      that changed the shape would have landed us somewhere else entirely. So if we enumerate the shapes first, one per
+      isomorphism class, the group we still have to worry about shrinks from $G_{n,k}$ all the way down to
+      $\operatorname{Aut}(\text{shape})$, which is usually trivial.</p>
+    <p>Fixing the shape buys us something else too. Once the domains and codomains are pinned down, the entry $A_{f,g}$
+      can only be a morphism with the domain of $g$ and the codomain of $f$ — that is, an element of a particular
+      hom-set, which for these sizes usually has one or two elements in it. Every cell of the table starts out with a
+      very short list of possibilities.</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+        <span>Filling in the table</span>
+      </span>
+    </h2>
+    <p>With a shape fixed, we fill in the table by backtracking, checking associativity as we go. The order we fill the
+      cells in is what makes the duplicates go away, so it's worth being precise about it: we fill in cells by
+      <i>level</i>, where level $d$ means the row and column of morphism $d$. Filling in level $d$ completes the
+      $(d+1)\times(d+1)$ square in the top left corner, so at every stage the part of the table we've written down is a
+      square subtable.
+    </p>
+    <p>That's the point. Whenever we finish a level, we can take any automorphism of the shape that maps that square to
+      itself, apply it, and compare the result with what we have. If it comes out smaller, we're looking at a table
+      that some other branch of the search will find in its least form, and we can abandon this branch immediately. If
+      it comes out larger, that automorphism can never make anything smaller later on either, so we drop it and stop
+      checking it. If it ties, we keep it and check again at the next level.</p>
+    <p>At the last level the square is the whole table and every automorphism maps it to itself, so every automorphism
+      still in play gets compared. What survives is the least table in its $\operatorname{Aut}(\text{shape})$ orbit —
+      and there is exactly one of those per orbit. No deduplication pass, no canonical form to compute, no enormous
+      intermediate file. Easy enough!</p>
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i></span>
+        <span>Not searching for disconnected categories</span>
+      </span>
+    </h2>
+    <p>We only ever run that search for <i>connected</i> categories. A disconnected category is a disjoint union of
+      smaller connected ones, and that decomposition is unique, so a disconnected category is exactly a multiset of
+      strictly smaller connected categories — all of which we already have. Rather than searching for them we assemble
+      them, which is both far cheaper and, as we'll see below, a check on the arithmetic. In the $(9,3)$ cell this
+      means searching for $3{,}568$ categories instead of $60{,}322$.</p>
 
     <h2>
       <span class="icon-text">
@@ -184,6 +237,12 @@
       says that this is where their program changed to counting connected categories and reconstructing the disconnected
       ones, making that stage the natural place to investigate. Without their code or intermediate output, however, we
       cannot distinguish an error in the connected search from an error in the reconstruction or reporting.</p>
+    <p>It's worth saying clearly that this is a local disagreement and not a general one. We have since enumerated the
+      $(9,2)$ cell as well, and we get $T(9,2)=1{,}868{,}157$ — exactly their number, and the only value in that row
+      nobody had checked. Their $T(9,4)$, $T(9,5)$ and $T(9,6)$ agree with us too, as do $T(10,5)$ and $T(10,6)$. The
+      two cells we disagree about, $(9,3)$ and $(10,4)$, are precisely the two largest connected searches their method
+      had to perform, which is what you would expect from a search that stopped early rather than from a mistake in the
+      reasoning.</p>
 
     <h3>10 morphisms and 4 objects</h3>
     <p>Here the reported value $65{,}922$ cannot satisfy the component formula. Even if we use Cruttwell and Leblanc’s
@@ -232,6 +291,31 @@
     &amp;=68{,}990.
     \end{aligned}
     $$
+
+    <h2>
+      <span class="icon-text">
+        <span class="icon"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i></span>
+        <span>Checking the answer</span>
+      </span>
+    </h2>
+    <p>A search that promises not to repeat itself is only worth as much as the check on that promise, so here are the
+      checks we actually run.</p>
+    <p>The first is the direct one. For each stored cell we take every table, compute the least relabelling of it under
+      the full group $G_{n,k}$ — the canonical form we deliberately avoid computing during the search — and look for
+      two tables that produce the same one. Finding none means no two lines of the file describe the same category. We
+      also confirm that every line really is a category: identities behave, composites are defined exactly when the
+      domains and codomains agree, and every associativity triple holds.</p>
+    <p>The second is the component formula above, which predicts the disconnected part of a cell before we build any of
+      it. It's a sharper test than the totals suggest, because it also predicts how many categories have each pattern
+      of component sizes. Every disconnected category in every populated cell turns up with exactly the multiplicity
+      it should.</p>
+    <p>The third applies only to the monoids, and comes from outside this project entirely. A finite monoid whose only
+      unit is the identity is exactly a semigroup with an identity adjoined, and that correspondence is a bijection, so
+      the number of monoids of order $n$ minus the number of semigroups of order $n-1$ has to be the number of monoids
+      of order $n$ with a nontrivial group of units. The semigroups of order seven have been counted independently of
+      anything here — there are $1{,}627{,}672$ of them (<a href="https://oeis.org/A027851">A027851</a>) — and we find
+      $1{,}668{,}997$ monoids of order eight, of which exactly $41{,}325$ have a nontrivial unit group. The difference
+      comes out right, and nothing about our search went into the semigroup count.</p>
 
     <div class="buttons methodology-links">
       <a class="button is-link is-light is-outlined" href="https://github.com/diracdeltafunk/SmallCategories">

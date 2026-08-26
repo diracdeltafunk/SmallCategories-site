@@ -1,9 +1,9 @@
 import {
   categoryHref,
   categoryLabel,
-  factsAt,
   getCategoryMetadata,
-  getFacts,
+  getPropositionBitmap,
+  bitmapHas,
   getManifest,
   getPropositions,
 } from '../data.js'
@@ -17,11 +17,6 @@ function boundValue(formData, name, fallback) {
   return Number.isInteger(value) ? value : NaN
 }
 
-function matchesPropositions(facts, trueBits, falseBits) {
-  return trueBits.every(bit => (facts.knownMask & bit) !== 0 && (facts.valueMask & bit) !== 0) &&
-    falseBits.every(bit => (facts.knownMask & bit) !== 0 && (facts.valueMask & bit) === 0)
-}
-
 async function renderQueryResults(app, manifest, propositions, bounds, truePropBits, falsePropBits, isLatest) {
   const cells = manifest.cells.filter(cell =>
     cell.morphisms >= bounds.morphismsLb &&
@@ -29,20 +24,32 @@ async function renderQueryResults(app, manifest, propositions, bounds, truePropB
     cell.objects >= bounds.objectsLb &&
     cell.objects <= bounds.objectsUb)
   const propositionBits = new Set(propositions.map(proposition => proposition.bit))
-  const selectedBits = [...truePropBits, ...falsePropBits].map(Number)
-  if (selectedBits.some(bit => !propositionBits.has(bit))) throw new Error('The query contains an unknown proposition')
-  const trueBits = truePropBits.map(bit => 2 ** Number(bit))
-  const falseBits = falsePropBits.map(bit => 2 ** Number(bit))
-  const needsFacts = trueBits.length > 0 || falseBits.length > 0
-  const factData = needsFacts ? await getFacts(manifest) : null
-  if (!isLatest()) return
+  const selected = [...truePropBits, ...falsePropBits].map(Number)
+  if (selected.some(bit => !propositionBits.has(bit))) throw new Error('The query contains an unknown proposition')
+  const wanted = truePropBits.map(Number).map(bit => ({ bit, value: true }))
+    .concat(falsePropBits.map(Number).map(bit => ({ bit, value: false })))
+
   let count = 0
   const rows = []
-
   for (const cell of cells) {
+    // A cell where some chosen proposition is uniformly wrong contributes
+    // nothing, and is ruled out from the manifest without any request at all.
+    if (wanted.some(({ bit, value }) =>
+      cell.trueCounts[bit] === (value ? 0 : cell.count))) continue
+    const undecided = wanted.filter(({ bit }) =>
+      cell.trueCounts[bit] !== 0 && cell.trueCounts[bit] !== cell.count)
+    if (undecided.length === 0) {
+      // Every chosen proposition is uniformly right: the whole cell matches.
+      count += cell.count
+      for (let index = 0; index < cell.count && rows.length < 10; index += 1) {
+        rows.push({ ...cell, index })
+      }
+      continue
+    }
+    const bitmaps = await Promise.all(undecided.map(({ bit }) => getPropositionBitmap(cell, bit)))
+    if (!isLatest()) return
     for (let index = 0; index < cell.count; index += 1) {
-      const facts = needsFacts ? factsAt(factData, cell.offset + index) : null
-      if (needsFacts && !matchesPropositions(facts, trueBits, falseBits)) continue
+      if (!undecided.every(({ value }, position) => bitmapHas(bitmaps[position], index) === value)) continue
       count += 1
       if (rows.length < 10) rows.push({ ...cell, index })
     }
@@ -92,10 +99,6 @@ export async function renderQueryPage({ app, isCurrent, onError }) {
     }
     const trueProps = formData.getAll('true_prop')
     const falseProps = formData.getAll('false_prop')
-    if ((trueProps.length || falseProps.length) && !manifest.factsAvailable) {
-      app.querySelector('#query-results').innerHTML = '<div class="notification is-danger is-light">Proposition facts are not available in this build.</div>'
-      return
-    }
     try {
       await renderQueryResults(app, manifest, propositions, bounds, trueProps, falseProps, isLatest)
     } catch (error) {

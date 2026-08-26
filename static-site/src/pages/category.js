@@ -1,12 +1,10 @@
 import {
   categoryLabel,
-  factsAt,
   findCell,
   getCategoryMetadata,
-  getFacts,
   getManifest,
   getPropositions,
-  loadCategoryTable,
+  loadCategory,
 } from '../data.js'
 import { escapeHtml, iconText, setTitle } from '../ui.js'
 import { mountCategoryVisualization } from '../visualization.js'
@@ -20,15 +18,12 @@ function renderMatrix(table, morphisms) {
   </tbody></table></div>`
 }
 
-function renderCategoryFacts(propositions, facts, factsAvailable) {
-  if (!factsAvailable) {
-    return '<div class="notification is-info is-light">Proposition values are not included in this build.</div>'
-  }
-  const known = propositions.filter(proposition => (facts.knownMask & (2 ** proposition.bit)) !== 0)
-  if (known.length === 0) return '<p class="muted">No proposition values are known for this category.</p>'
+// Every proposition is known for every category, so there is no longer an
+// "unknown" case to render.
+function renderCategoryFacts(propositions, mask) {
   return `<div class="fact-list">
-    ${known.map(proposition => {
-      const value = (facts.valueMask & (2 ** proposition.bit)) !== 0
+    ${propositions.map(proposition => {
+      const value = (mask & (2 ** proposition.bit)) !== 0
       return `<a class="tag is-${value ? 'success' : 'danger'}" href="/proposition/${encodeURIComponent(proposition.name)}" data-link aria-label="${escapeHtml(proposition.name)}: ${value ? 'true' : 'false'}">${iconText(value ? 'check' : 'xmark', escapeHtml(proposition.name))}</a>`
     }).join('')}
   </div>`
@@ -43,15 +38,14 @@ export async function renderCategoryPage({ app, morphisms, objects, index, isCur
   const cell = findCell(manifest, morphisms, objects)
   if (!cell || index < 0 || index >= cell.count) return { found: false, cleanup: () => {} }
 
-  const [table, metadata, propositions, factData] = await Promise.all([
-    loadCategoryTable(cell, index),
+  const [category, metadata, propositions] = await Promise.all([
+    loadCategory(cell, index),
     getCategoryMetadata(cell, index),
     getPropositions(),
-    getFacts(manifest),
   ])
   if (!isCurrent()) return { found: true, stale: true, cleanup: () => {} }
 
-  const facts = factsAt(factData, cell.offset + index)
+  const { table, mask } = category
   const label = categoryLabel(morphisms, objects, index)
   setTitle(label)
   app.innerHTML = categoryTemplate
@@ -76,7 +70,7 @@ export async function renderCategoryPage({ app, morphisms, objects, index, isCur
       </div><p class="help">Morphisms 0 through ${objects - 1} are identities, shown as objects.</p>`
     : '<p>The empty category has no quiver.</p>'
   app.querySelector('[data-category-table]').innerHTML = `${renderMatrix(table, morphisms)}${morphisms > 0 ? '<p class="help">“/” indicates an undefined composition.</p>' : ''}`
-  app.querySelector('[data-category-facts]').innerHTML = renderCategoryFacts(propositions, facts, manifest.factsAvailable)
+  app.querySelector('[data-category-facts]').innerHTML = renderCategoryFacts(propositions, mask)
 
   return {
     found: true,

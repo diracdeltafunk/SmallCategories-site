@@ -1,13 +1,20 @@
 # Website build data
 
-This directory contains the preserved public metadata and proposition values used to build the static SmallCats website:
+Two small files, and between them the only content here that a human wrote.
 
-- `propositions.json`: proposition names, descriptions, and stable bit assignments;
-- `categories.ndjson`: public names/descriptions, multiplication-table fingerprints, and compact proposition masks;
-- `export-manifest.json`: format version, snapshot timestamp, and checked record counts.
+- `propositions.json`: the eighteen proposition names, descriptions, and their
+  stable bit assignments. The bit order must match `NAMES` in
+  `SmallCategories/smallcats/src/propositions.rs`; changing it would silently
+  reinterpret every stored mask.
+- `names.json`: friendly names and descriptions, each pinned to a category by
+  `(morphisms, objects, index)`. Add a row to name another category.
 
-The category tables themselves remain canonical in the separate [SmallCategories](https://github.com/diracdeltafunk/SmallCategories) repository. The website compiler matches each snapshot row to a category by the SHA-256 hash of its compact JSON multiplication table. It does not trust the historical numeric index.
+Everything else the site shows about a category — all eighteen propositions — is
+a property of its multiplication table, computed in the generator and stored
+beside the tables as `database/props<n>-<k>.txt`. There is no fingerprint join
+any more, and nothing here can fall out of step with the database.
 
-These files are build inputs, not credentials or a database backup. They contain only information already published by smallcats.info.
-
-When updating this snapshot, replace all three data files together and run the static site's production build. The compiler validates the format, source counts, proposition masks, and multiplication-table fingerprints.
+This used to also hold `categories.ndjson`, a 34 MB snapshot of proposition
+masks keyed by table fingerprint. It was retired on 2026-08-25: the masks are
+recomputed, and recomputing them fixed 428 categories whose `has_equalizers` and
+`has_coequalizers` values were wrong.

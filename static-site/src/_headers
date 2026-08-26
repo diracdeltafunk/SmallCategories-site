@@ -1,16 +1,16 @@
-/data/v4/categories/*
+/data/v5/categories/*
   Cache-Control: public, max-age=3600
 
-/data/v4/metadata/*
+/data/v5/metadata/*
   Cache-Control: public, max-age=3600
 
-/data/v4/facts.bin
+/data/v5/bitmaps/*
   Cache-Control: public, max-age=3600
 
-/data/v4/propositions.json
+/data/v5/propositions.json
   Cache-Control: public, max-age=3600
 
-/data/v4/manifest.json
+/data/v5/manifest.json
   Cache-Control: public, max-age=0, must-revalidate
 
 /app-*.js

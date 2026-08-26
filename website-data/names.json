@@ -1,0 +1,51 @@
+[
+  {
+    "morphisms": 0,
+    "objects": 0,
+    "index": 0,
+    "name": "Discrete(0)",
+    "description": "Aka the initial category."
+  },
+  {
+    "morphisms": 1,
+    "objects": 1,
+    "index": 0,
+    "name": "Discrete(1)"
+  },
+  {
+    "morphisms": 2,
+    "objects": 2,
+    "index": 0,
+    "name": "Discrete(2)"
+  },
+  {
+    "morphisms": 3,
+    "objects": 3,
+    "index": 0,
+    "name": "Discrete(3)"
+  },
+  {
+    "morphisms": 4,
+    "objects": 4,
+    "index": 0,
+    "name": "Discrete(4)"
+  },
+  {
+    "morphisms": 5,
+    "objects": 5,
+    "index": 0,
+    "name": "Discrete(5)"
+  },
+  {
+    "morphisms": 6,
+    "objects": 6,
+    "index": 0,
+    "name": "Discrete(6)"
+  },
+  {
+    "morphisms": 7,
+    "objects": 7,
+    "index": 0,
+    "name": "Discrete(7)"
+  }
+]

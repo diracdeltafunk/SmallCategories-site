@@ -30,7 +30,9 @@ export async function renderStatsPage({ app, isCurrent }) {
   app.innerHTML = statsTemplate
   app.querySelector('[data-stat="categories"]').textContent = numberFormat.format(manifest.categoryCount)
   app.querySelector('[data-stat="propositions"]').textContent = numberFormat.format(manifest.propositionCount)
-  app.querySelector('[data-stat="relations"]').textContent = numberFormat.format(manifest.relationCount || 0)
+  // Every proposition is known for every category, so this is just the product.
+  app.querySelector('[data-stat="relations"]').textContent =
+    numberFormat.format(manifest.categoryCount * manifest.propositionCount)
   app.querySelector('[data-stats-heading]').innerHTML = `
     <th>Objects →<br>Morphisms ↓</th>
     ${Array.from({ length: maxObjects + 1 }, (_, index) => `<th>${index}</th>`).join('')}

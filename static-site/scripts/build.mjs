@@ -22,8 +22,9 @@ const SOURCE_DIR = resolve(SITE_DIR, 'src')
 const FINAL_DIR = resolve(SITE_DIR, 'dist')
 const TEMP_DIR = resolve(SITE_DIR, '.dist-tmp')
 const PUBLIC_FILES = ['.nojekyll', '_headers', 'favicon.svg', 'index.html']
-const SHARD_SIZE = 512
-const DATA_VERSION = 'v4'
+const SHARD_SIZE = 2048
+const PROPOSITION_BITS = 18
+const DATA_VERSION = 'v5'
 
 function parseArgs(argv) {
   const result = { databaseDir: DEFAULT_DATABASE_DIR, websiteDataDir: null }
@@ -57,114 +58,47 @@ async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value)}\n`, 'utf8')
 }
 
-async function writeShard(outputDir, morphisms, objects, shardIndex, start, tables) {
+// Each shard carries the propositions of the categories in it, so a category
+// page needs exactly one request and no global fact file.
+async function writeShard(outputDir, morphisms, objects, shardIndex, start, tables, masks) {
   const path = join(outputDir, 'data', DATA_VERSION, 'categories', `${morphisms}-${objects}-${shardIndex}.json`)
   await writeJson(path, {
     morphisms,
     objects,
     start,
     tables,
+    masks,
   })
 }
 
-function tableSha256(table) {
-  return createHash('sha256').update(JSON.stringify(table)).digest('hex')
-}
-
-function categoryRecordKey(morphisms, objects, digest) {
-  return `${morphisms}-${objects}-${digest}`
-}
-
-function parseMask(value, label, lineNumber) {
-  let mask
-  try {
-    mask = BigInt(value)
-  } catch {
-    throw new Error(`categories.ndjson:${lineNumber} has an invalid ${label}`)
-  }
-  if (mask < 0n || mask > 0xffffffffn) {
-    throw new Error(`categories.ndjson:${lineNumber} ${label} is outside the 32-bit static format`)
-  }
-  return Number(mask)
-}
-
-async function loadWebsiteData(websiteDataDir) {
-  if (!websiteDataDir) return null
-  await ensureDirectory(websiteDataDir, 'Website data directory')
-
-  const dataManifest = JSON.parse(await readFile(join(websiteDataDir, 'export-manifest.json'), 'utf8'))
-  if (dataManifest.schemaVersion !== 2) {
-    throw new Error(`Unsupported website-data schema version: ${dataManifest.schemaVersion}`)
-  }
+// The only thing here that a human wrote: names and descriptions.  Every other
+// property of a category is computed from its multiplication table, so there is
+// nothing to join and nothing that can fall out of step with the database.
+async function loadNames(websiteDataDir) {
+  if (!websiteDataDir) return { rows: [], propositions: [] }
   const propositions = JSON.parse(await readFile(join(websiteDataDir, 'propositions.json'), 'utf8'))
-  if (!Array.isArray(propositions) || propositions.length > 32) {
-    throw new Error('Website data must contain an array of at most 32 propositions')
-  }
-  propositions.forEach((proposition, bit) => {
-    if (proposition.bit !== bit || typeof proposition.name !== 'string') {
-      throw new Error(`Invalid proposition at bit ${bit}`)
+  const rows = JSON.parse(await readFile(join(websiteDataDir, 'names.json'), 'utf8'))
+  for (const [position, row] of rows.entries()) {
+    if (!Number.isInteger(row.morphisms) || !Number.isInteger(row.objects) || !Number.isInteger(row.index)) {
+      throw new Error(`names.json[${position}] needs integer morphisms, objects and index`)
     }
-  })
-
-  const recordsByKey = new Map()
-  const input = createInterface({
-    input: createReadStream(join(websiteDataDir, 'categories.ndjson'), { encoding: 'utf8' }),
-    crlfDelay: Infinity,
-  })
-  let lineNumber = 0
-  for await (const line of input) {
-    lineNumber += 1
-    if (!line.trim()) continue
-    const record = JSON.parse(line)
-    const requiredIntegers = [record.morphisms, record.objects]
-    if (requiredIntegers.some(value => !Number.isInteger(value) || value < 0)) {
-      throw new Error(`categories.ndjson:${lineNumber} has invalid category coordinates`)
+    if (!row.name && !row.description) {
+      throw new Error(`names.json[${position}] has neither a name nor a description`)
     }
-    if (typeof record.tableSha256 !== 'string' || !/^[0-9a-f]{64}$/i.test(record.tableSha256)) {
-      throw new Error(`categories.ndjson:${lineNumber} has an invalid table digest`)
-    }
-    record.knownMask = parseMask(record.knownMask, 'knownMask', lineNumber)
-    record.valueMask = parseMask(record.valueMask, 'valueMask', lineNumber)
-    const allowedMask = propositions.length === 32 ? 0xffffffff : (2 ** propositions.length) - 1
-    if ((record.knownMask & allowedMask) >>> 0 !== record.knownMask >>> 0) {
-      throw new Error(`categories.ndjson:${lineNumber} uses an unknown proposition bit`)
-    }
-    if ((record.valueMask & record.knownMask) >>> 0 !== record.valueMask >>> 0) {
-      throw new Error(`categories.ndjson:${lineNumber} marks an unknown fact as true`)
-    }
-    const key = categoryRecordKey(record.morphisms, record.objects, record.tableSha256)
-    if (recordsByKey.has(key)) throw new Error(`Duplicate website-data multiplication table at line ${lineNumber}`)
-    recordsByKey.set(key, record)
   }
-  if (recordsByKey.size !== dataManifest.categoryCount) {
-    throw new Error(`Website-data manifest expected ${dataManifest.categoryCount} categories but found ${recordsByKey.size}`)
-  }
-  if (propositions.length !== dataManifest.propositionCount) {
-    throw new Error(`Website-data manifest expected ${dataManifest.propositionCount} propositions but found ${propositions.length}`)
-  }
-  return {
-    dataManifest,
-    propositions,
-    recordsByKey,
-    facts: [],
-    matchedCategories: 0,
-    metadataCategoryCount: 0,
-    relationCount: 0,
-  }
+  return { rows, propositions }
 }
 
-function countBits(value) {
-  let remaining = value >>> 0
-  let count = 0
-  while (remaining) {
-    remaining &= remaining - 1
-    count += 1
-  }
-  return count
-}
-
-async function compileCell(databaseDir, outputDir, filename, morphisms, objects, offset, websiteData) {
+async function compileCell(databaseDir, outputDir, filename, morphisms, objects, offset, names) {
   const path = join(databaseDir, filename)
+  const propositionsPath = join(databaseDir, `props${morphisms}-${objects}.txt`)
+  let masks
+  try {
+    masks = (await readFile(propositionsPath, 'utf8')).split('\n').filter(Boolean).map(Number)
+  } catch {
+    throw new Error(`${propositionsPath} is missing; run generate-database.sh to write it`)
+  }
+
   const input = createInterface({
     input: createReadStream(path, { encoding: 'utf8' }),
     crlfDelay: Infinity,
@@ -174,53 +108,71 @@ async function compileCell(databaseDir, outputDir, filename, morphisms, objects,
   let shardIndex = 0
   let shardStart = 0
   let tables = []
-  const metadata = []
+  let shardMasks = []
+  const bitmaps = Array.from({ length: PROPOSITION_BITS }, () => [])
+  const trueCounts = new Array(PROPOSITION_BITS).fill(0)
 
   for await (const line of input) {
     if (!line.trim()) continue
     const table = JSON.parse(line)
-    if (!Array.isArray(table) || table.length !== morphisms) {
+    if (!Array.isArray(table) || table.length !== morphisms
+      || table.some(row => !Array.isArray(row) || row.length !== morphisms)) {
       throw new Error(`${filename}:${count + 1} is not a ${morphisms} x ${morphisms} table`)
     }
-    if (table.some(row => !Array.isArray(row) || row.length !== morphisms)) {
-      throw new Error(`${filename}:${count + 1} is not a ${morphisms} x ${morphisms} table`)
+    const mask = masks[count]
+    if (mask === undefined) {
+      throw new Error(`${propositionsPath} has fewer rows than ${filename}`)
     }
-    if (websiteData) {
-      const key = categoryRecordKey(morphisms, objects, tableSha256(table))
-      const record = websiteData.recordsByKey.get(key)
-      if (record) {
-        websiteData.recordsByKey.delete(key)
-        websiteData.matchedCategories += 1
-        websiteData.relationCount += countBits(record.knownMask)
-        if (record.friendlyName || record.description) {
-          metadata.push([count, record.friendlyName, record.description])
-          websiteData.metadataCategoryCount += 1
-        }
-        websiteData.facts.push(record.knownMask, record.valueMask)
-      } else {
-        websiteData.facts.push(0, 0)
-      }
+    for (let bit = 0; bit < PROPOSITION_BITS; bit += 1) {
+      const set = (mask >> bit) & 1
+      bitmaps[bit].push(set)
+      trueCounts[bit] += set
     }
     tables.push(table)
+    shardMasks.push(mask)
     count += 1
     if (tables.length === SHARD_SIZE) {
-      await writeShard(outputDir, morphisms, objects, shardIndex, shardStart, tables)
+      await writeShard(outputDir, morphisms, objects, shardIndex, shardStart, tables, shardMasks)
       shardIndex += 1
       shardStart = count
       tables = []
+      shardMasks = []
     }
   }
 
   if (tables.length > 0) {
-    await writeShard(outputDir, morphisms, objects, shardIndex, shardStart, tables)
+    await writeShard(outputDir, morphisms, objects, shardIndex, shardStart, tables, shardMasks)
     shardIndex += 1
   }
-
   if (count === 0) {
     console.warn(`Warning: ${filename} contains no category rows and was omitted.`)
     return null
   }
+  if (masks.length !== count) {
+    throw new Error(`${propositionsPath} has ${masks.length} rows but ${filename} has ${count}`)
+  }
 
+  // A proposition that is true of every category in the cell, or of none, is
+  // already answered by its count -- only the mixed ones need a bitmap.
+  for (let bit = 0; bit < PROPOSITION_BITS; bit += 1) {
+    if (trueCounts[bit] === 0 || trueCounts[bit] === count) continue
+    const packed = Buffer.alloc(Math.ceil(count / 8))
+    bitmaps[bit].forEach((set, index) => {
+      if (set) packed[index >> 3] |= 1 << (index & 7)
+    })
+    const target = join(outputDir, 'data', DATA_VERSION, 'bitmaps', `${morphisms}-${objects}-${bit}.bin`)
+    await mkdir(dirname(target), { recursive: true })
+    await writeFile(target, packed)
+  }
+
+  const metadata = names
+    .filter(row => row.morphisms === morphisms && row.objects === objects)
+    .map(row => {
+      if (row.index >= count) {
+        throw new Error(`names.json refers to index ${row.index} of a ${count}-category cell`)
+      }
+      return [row.index, row.name ?? null, row.description ?? null]
+    })
   if (metadata.length > 0) {
     await writeJson(join(outputDir, 'data', DATA_VERSION, 'metadata', `${morphisms}-${objects}.json`), metadata)
   }
@@ -233,6 +185,7 @@ async function compileCell(databaseDir, outputDir, filename, morphisms, objects,
     shardSize: SHARD_SIZE,
     shards: shardIndex,
     metadataCount: metadata.length,
+    trueCounts,
   }
 }
 
@@ -240,7 +193,7 @@ async function build() {
   const { databaseDir, websiteDataDir } = parseArgs(process.argv.slice(2))
   await ensureDirectory(SOURCE_DIR, 'Static source directory')
   await ensureDirectory(databaseDir, 'Category database directory')
-  const websiteData = await loadWebsiteData(websiteDataDir)
+  const { rows: names, propositions } = await loadNames(websiteDataDir)
 
   const databaseFiles = (await readdir(databaseDir))
     .map(filename => {
@@ -271,7 +224,7 @@ async function build() {
       file.morphisms,
       file.objects,
       categoryCount,
-      websiteData,
+      names,
     )
     if (!cell) continue
     cells.push(cell)
@@ -279,39 +232,19 @@ async function build() {
     console.log(`${file.morphisms},${file.objects}: ${cell.count.toLocaleString()} categories`)
   }
 
-  if (websiteData?.recordsByKey.size) {
-    const examples = [...websiteData.recordsByKey.values()]
-      .slice(0, 3)
-      .map(record => `(${record.morphisms},${record.objects},${record.tableSha256.slice(0, 12)}…)`)
-      .join(', ')
-    throw new Error(
-      `${websiteData.recordsByKey.size} website-data categories could not be matched to canonical tables. ` +
-      `Examples: ${examples}`
-    )
-  }
-  if (websiteData && websiteData.relationCount !== websiteData.dataManifest.relationCount) {
-    throw new Error(
-      `Website-data manifest expected ${websiteData.dataManifest.relationCount} facts but matched ${websiteData.relationCount}`
-    )
-  }
-
-  if (websiteData) {
-    const facts = Buffer.alloc(websiteData.facts.length * 4)
-    websiteData.facts.forEach((value, index) => facts.writeUInt32LE(value >>> 0, index * 4))
-    await writeFile(join(TEMP_DIR, 'data', DATA_VERSION, 'facts.bin'), facts)
-  }
-
+  // Every proposition of every category is known, so the manifest carries the
+  // per-cell true-counts.  A query can answer any cell where a proposition is
+  // constant from these alone, and only fetches a bitmap for the mixed ones.
   const manifest = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     categoryCount,
-    propositionCount: websiteData?.propositions.length || 0,
-    relationCount: websiteData?.relationCount || 0,
-    metadataCategoryCount: websiteData?.metadataCategoryCount || 0,
-    factsAvailable: Boolean(websiteData),
+    propositionCount: propositions.length,
+    propositionBits: PROPOSITION_BITS,
+    metadataCategoryCount: cells.reduce((total, cell) => total + cell.metadataCount, 0),
     cells,
   }
   await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'manifest.json'), manifest)
-  await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'propositions.json'), websiteData?.propositions || [])
+  await writeJson(join(TEMP_DIR, 'data', DATA_VERSION, 'propositions.json'), propositions)
   await bundle({
     entryPoints: {
       app: join(SOURCE_DIR, 'app.js'),
@@ -352,12 +285,10 @@ async function build() {
     return text.byteLength
   }))
   console.log(`Built ${categoryCount.toLocaleString()} categories from ${sourceBytes.reduce((a, b) => a + b, 0).toLocaleString()} source bytes.`)
-  if (websiteData) {
-    console.log(
-      `Matched ${websiteData.matchedCategories.toLocaleString()} website-data categories and ` +
-      `${websiteData.relationCount.toLocaleString()} facts by multiplication-table fingerprint.`,
-    )
-  }
+  console.log(
+    `${names.length} named categories and ${propositions.length} propositions, ` +
+    `computed from the tables with no join.`,
+  )
   console.log(`Output: ${FINAL_DIR}`)
 }
 

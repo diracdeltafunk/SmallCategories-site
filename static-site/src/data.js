@@ -1,10 +1,10 @@
 let manifestPromise
 let propositionsPromise
-let factsPromise
 const metadataPromises = new Map()
+const bitmapPromises = new Map()
 
 function dataUrl(path) {
-  return new URL(`/data/v4/${path}`, window.location.origin).toString()
+  return new URL(`/data/v5/${path}`, window.location.origin).toString()
 }
 
 async function fetchJson(path) {
@@ -29,15 +29,28 @@ export function getPropositions() {
   return propositionsPromise
 }
 
-export function getFacts(manifest) {
-  if (!manifest.factsAvailable) return Promise.resolve(null)
-  factsPromise ??= fetchBinary('facts.bin').then(buffer => {
-    if (buffer.byteLength !== manifest.categoryCount * 8) {
-      throw new Error(`Fact data has ${buffer.byteLength} bytes; expected ${manifest.categoryCount * 8}`)
-    }
-    return new DataView(buffer)
-  })
-  return factsPromise
+/// A cell's categories that satisfy one proposition, as a packed bitmap.
+///
+/// Only propositions that are true of some but not all of the cell are stored:
+/// when `trueCounts` says none or all, the answer is known without a request.
+export function getPropositionBitmap(cell, bit) {
+  const count = cell.trueCounts[bit]
+  if (count === 0) return Promise.resolve({ all: false })
+  if (count === cell.count) return Promise.resolve({ all: true })
+  const key = `${cell.morphisms}-${cell.objects}-${bit}`
+  if (!bitmapPromises.has(key)) {
+    bitmapPromises.set(
+      key,
+      fetchBinary(`bitmaps/${key}.bin`).then(buffer => ({ bits: new Uint8Array(buffer) })),
+    )
+  }
+  return bitmapPromises.get(key)
+}
+
+/// Whether the category at `index` in the cell satisfies the proposition.
+export function bitmapHas(bitmap, index) {
+  if (bitmap.bits) return (bitmap.bits[index >> 3] >> (index & 7) & 1) === 1
+  return bitmap.all
 }
 
 export function getCellMetadata(cell) {
@@ -55,15 +68,6 @@ export function getCellMetadata(cell) {
 
 export async function getCategoryMetadata(cell, index) {
   return (await getCellMetadata(cell)).get(index) || null
-}
-
-export function factsAt(view, ordinal) {
-  if (!view) return { knownMask: 0, valueMask: 0 }
-  const byteOffset = ordinal * 8
-  return {
-    knownMask: view.getUint32(byteOffset, true),
-    valueMask: view.getUint32(byteOffset + 4, true),
-  }
 }
 
 export function categoryLabel(morphisms, objects, index) {
@@ -84,10 +88,12 @@ export function ordinalToCategory(manifest, ordinal) {
   return { ...cell, index: ordinal - cell.offset }
 }
 
-export async function loadCategoryTable(cell, index) {
+/// One category: its multiplication table and its propositions, which travel
+/// together in the same shard so a category page makes a single request.
+export async function loadCategory(cell, index) {
   const shardIndex = Math.floor(index / cell.shardSize)
   const shard = await fetchJson(`categories/${cell.morphisms}-${cell.objects}-${shardIndex}.json`)
   const table = shard.tables[index - shard.start]
   if (!table) throw new Error(`Category index ${index} is missing from its data shard`)
-  return table
+  return { table, mask: shard.masks[index - shard.start] }
 }
